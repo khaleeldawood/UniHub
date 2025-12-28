@@ -1,0 +1,97 @@
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import authService from '../services/authService';
+import websocketService from '../services/websocketService';
+
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Load user from localStorage on mount
+    const savedUser = authService.getCurrentUser();
+    if (savedUser) {
+      setUser(savedUser);
+      // Connect to WebSocket
+      websocketService.connect(() => {
+        console.log('WebSocket connected for user:', savedUser.userId);
+      });
+    }
+    setLoading(false);
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const userData = await authService.login(email, password);
+      setUser(userData);
+      
+      // Connect to WebSocket
+      websocketService.connect(() => {
+        console.log('WebSocket connected after login');
+      });
+      
+      return userData;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const register = async (data) => {
+    try {
+      const userData = await authService.register(data);
+      setUser(userData);
+      
+      // Connect to WebSocket
+      websocketService.connect(() => {
+        console.log('WebSocket connected after registration');
+      });
+      
+      return userData;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const logout = () => {
+    websocketService.disconnect();
+    authService.logout();
+    setUser(null);
+  };
+
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('unihub_user', JSON.stringify(updatedUser));
+  };
+
+  const hasRole = (role) => {
+    return user && user.role === role;
+  };
+
+  const isAuthenticated = () => {
+    return !!user;
+  };
+
+  const value = {
+    user,
+    loading,
+    login,
+    register,
+    logout,
+    updateUser,
+    hasRole,
+    isAuthenticated
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
+
+export default AuthContext;

@@ -1,0 +1,276 @@
+import React, { useState, useEffect } from 'react';
+import { Container, Card, Table, Badge, Button, Form, Row, Col, Alert } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import reportService from '../services/reportService';
+import { formatDate, getTimeAgo } from '../utils/helpers';
+
+const Reports = () => {
+  const [eventReports, setEventReports] = useState([]);
+  const [blogReports, setBlogReports] = useState([]);
+  const [filter, setFilter] = useState('ALL'); // ALL, EVENT, BLOG
+  const [statusFilter, setStatusFilter] = useState('PENDING');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    loadReports();
+  }, [statusFilter]);
+
+  const loadReports = async () => {
+    setLoading(true);
+    try {
+      const [events, blogs] = await Promise.all([
+        reportService.getEventReports({ status: statusFilter === 'ALL' ? undefined : statusFilter }),
+        reportService.getBlogReports({ status: statusFilter === 'ALL' ? undefined : statusFilter })
+      ]);
+      setEventReports(Array.isArray(events) ? events : []);
+      setBlogReports(Array.isArray(blogs) ? blogs : []);
+    } catch (err) {
+      console.error('Failed to load reports:', err);
+      setError('Failed to load reports');
+      setEventReports([]);
+      setBlogReports([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResolveReport = async (reportId, type) => {
+    try {
+      if (type === 'event') {
+        await reportService.resolveEventReport(reportId);
+      } else {
+        await reportService.resolveBlogReport(reportId);
+      }
+      setSuccess('Report resolved successfully');
+      loadReports();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to resolve report');
+    }
+  };
+
+  const handleDismissReport = async (reportId, type) => {
+    try {
+      if (type === 'event') {
+        await reportService.dismissEventReport(reportId);
+      } else {
+        await reportService.dismissBlogReport(reportId);
+      }
+      setSuccess('Report dismissed successfully');
+      loadReports();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to dismiss report');
+    }
+  };
+
+  const filteredEventReports = filter === 'BLOG' ? [] : eventReports;
+  const filteredBlogReports = filter === 'EVENT' ? [] : blogReports;
+
+  return (
+    <Container className="py-4">
+      {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
+      {success && <Alert variant="success" dismissible onClose={() => setSuccess('')}>{success}</Alert>}
+
+      <Row className="mb-4">
+        <Col>
+          <h2>📋 Content Reports</h2>
+          <p className="text-muted">Manage reported events and blogs</p>
+        </Col>
+      </Row>
+
+      {/* Filters */}
+      <Card className="mb-4">
+        <Card.Body>
+          <Row className="g-3">
+            <Col md={4}>
+              <Form.Label style={{ fontWeight: '600' }}>Report Type</Form.Label>
+              <Form.Select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              >
+                <option value="ALL">All Reports</option>
+                <option value="EVENT">📅 Event Reports</option>
+                <option value="BLOG">📝 Blog Reports</option>
+              </Form.Select>
+            </Col>
+            <Col md={4}>
+              <Form.Label style={{ fontWeight: '600' }}>Status</Form.Label>
+              <Form.Select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="PENDING">⏳ Pending</option>
+                <option value="REVIEWED">✅ Resolved</option>
+                <option value="DISMISSED">🚫 Dismissed</option>
+              </Form.Select>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      {loading ? (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" />
+        </div>
+      ) : (
+        <>
+          {/* Event Reports */}
+          {filteredEventReports.length > 0 && (
+            <Card className="mb-4">
+              <Card.Header>
+                <h5 className="mb-0">📅 Event Reports ({filteredEventReports.length})</h5>
+              </Card.Header>
+              <Card.Body className="p-0">
+                <Table responsive hover className="mb-0">
+                  <thead>
+                    <tr>
+                      <th>Event</th>
+                      <th>Reported By</th>
+                      <th>Reason</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredEventReports.map((report) => (
+                      <tr key={report.reportId}>
+                        <td>
+                          <Link to={`/events/${report.event?.eventId}`} style={{ fontWeight: '600' }}>
+                            {report.event?.title}
+                          </Link>
+                          <div className="text-muted small">by {report.event?.creator?.name}</div>
+                        </td>
+                        <td>{report.reportedBy?.name}</td>
+                        <td>
+                          <div style={{ maxWidth: '300px' }}>
+                            {report.reason}
+                          </div>
+                        </td>
+                        <td>
+                          <small>{getTimeAgo(report.createdAt)}</small>
+                        </td>
+                        <td>
+                          <Badge bg={
+                            report.status === 'PENDING' ? 'warning' :
+                            report.status === 'REVIEWED' ? 'success' : 'secondary'
+                          }>
+                            {report.status === 'REVIEWED' ? 'RESOLVED' : report.status}
+                          </Badge>
+                        </td>
+                        <td>
+                          {report.status === 'PENDING' && (
+                            <div className="d-flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="success"
+                                onClick={() => handleResolveReport(report.reportId, 'event')}
+                              >
+                                ✅ Resolve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => handleDismissReport(report.reportId, 'event')}
+                              >
+                                🚫 Dismiss
+                              </Button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </Card.Body>
+            </Card>
+          )}
+
+          {/* Blog Reports */}
+          {filteredBlogReports.length > 0 && (
+            <Card className="mb-4">
+              <Card.Header>
+                <h5 className="mb-0">📝 Blog Reports ({filteredBlogReports.length})</h5>
+              </Card.Header>
+              <Card.Body className="p-0">
+                <Table responsive hover className="mb-0">
+                  <thead>
+                    <tr>
+                      <th>Blog</th>
+                      <th>Reported By</th>
+                      <th>Reason</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredBlogReports.map((report) => (
+                      <tr key={report.reportId}>
+                        <td>
+                          <Link to={`/blogs/${report.blog?.blogId}`} style={{ fontWeight: '600' }}>
+                            {report.blog?.title}
+                          </Link>
+                          <div className="text-muted small">by {report.blog?.author?.name}</div>
+                        </td>
+                        <td>{report.reportedBy?.name}</td>
+                        <td>
+                          <div style={{ maxWidth: '300px' }}>
+                            {report.reason}
+                          </div>
+                        </td>
+                        <td>
+                          <small>{getTimeAgo(report.createdAt)}</small>
+                        </td>
+                        <td>
+                          <Badge bg={
+                            report.status === 'PENDING' ? 'warning' :
+                            report.status === 'REVIEWED' ? 'success' : 'secondary'
+                          }>
+                            {report.status === 'REVIEWED' ? 'RESOLVED' : report.status}
+                          </Badge>
+                        </td>
+                        <td>
+                          {report.status === 'PENDING' && (
+                            <div className="d-flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="success"
+                                onClick={() => handleResolveReport(report.reportId, 'blog')}
+                              >
+                                ✅ Resolve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => handleDismissReport(report.reportId, 'blog')}
+                              >
+                                🚫 Dismiss
+                              </Button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </Card.Body>
+            </Card>
+          )}
+
+          {filteredEventReports.length === 0 && filteredBlogReports.length === 0 && (
+            <Card>
+              <Card.Body className="text-center py-5">
+                <p className="text-muted mb-0">No reports found</p>
+              </Card.Body>
+            </Card>
+          )}
+        </>
+      )}
+    </Container>
+  );
+};
+
+export default Reports;

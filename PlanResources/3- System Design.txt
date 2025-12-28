@@ -1,0 +1,155 @@
+# UniHub [3] - System Design
+
+## 1. UI Pages
+
+### 🏠 1. **Authentication Pages**
+
+|Page	|Description	|Typical Users	|
+|---	|---	|---	|
+|**Login Page** (`/login`)	|Allows users to log in with university email + password.	|All	|
+|---	|---	|---	|
+|**Register Page** (`/register`)	|New users sign up (students, supervisors). May require email verification.	|All	|
+|**Forgot Password Page** (`/forgot-password`)	|Email-based password reset.	|All	|
+
+* * *
+
+###  🏠 2. Home / Landing Page 
+
+#### 📍 Page Name
+
+**Home Page** (also called **Landing Page**)
+**Path:** `/`
+
+#### 🎯 Purpose
+
+* Acts as the **entry point** to the system.
+* Introduces UniHub’s features and purpose.
+* Provides easy navigation to login, register, or explore global content (like public blogs/events).
+* Builds trust and clarity before users log in.
+
+#### 🧩 Home Page Content Sections
+
+|Section	|Description	|Example UI Components	|
+|---	|---	|---	|
+|**Header / Navbar**	|Contains UniHub logo and navigation links.	|Logo, “Home”, “Events”, “Blogs”, “Login”, “Register”	|
+|---	|---	|---	|
+|**Hero Section**	|A large banner introducing UniHub — short tagline, background image, and a “Get Started” button.	|Big title (“Connect, Create, Participate”) + CTA	|
+|**About Section**	|Explains what UniHub is and its goals.	|Text + icons describing Events, Blogs, Points	|
+|**Features Section**	|Highlights main modules (Events, Blogs, Dashboard, Badges).	|Cards or icons grid	|
+|**Recent Events/Blogs Preview**	|Shows the latest approved events and blogs (read-only for guests).	|3-4 cards with “View More” links	|
+|**Leaderboard Sneak Peek**	|Optional section showing top 3 global contributors.
+
+Leaderboard shown to guests displays only global top 3 contributors; no private university-specific information.	|Small leaderboard widget	|
+|**Call-to-Action Section**	|Encourages user to join (“Join Your University Portal Today!”).	|Buttons for Register/Login	|
+|**Footer**	|Contact info, privacy policy, and copyright.	|Simple Bootstrap footer	|
+
+* * *
+
+### 🧾 3. **Other Utility Pages**
+
+|Page	|Description	|Typical Users	|
+|---	|---	|---	|
+|**Reports Page** (`/reports`)	|Shows reported blogs or events awaiting supervisor review.	|Supervisors, Admins	|
+|---	|---	|---	|
+|**Profile Page** (`/profile/:id`)	|User’s public profile showing badges, posts, and events.	|All	|
+|**Settings Page** (`/settings`)	|Change password, notification preferences, etc.	|All	|
+|**404 / Access Denied Page**	|Standard error pages.	|All	|
+
+1. **Settings Page (/settings)**
+
+    * Add option to **enable/disable notifications pop-ups**. Default: Notification pop-ups are enabled for all users. Users may disable pop-ups via settings toggle. 
+
+* * *
+
+### 📊 4. **Dashboard Pages**
+
+|Page	|Description	|Typical Users	|
+|---	|---	|---	|
+|**User Dashboard** (`/dashboard`)	|Displays total points, earned badges, upcoming events, recent blogs, leaderboard snippet.	|Students, Supervisors	|
+|---	|---	|---	|
+|**Supervisor Dashboard** (`/dashboard/supervisor`)	|Shows pending approvals, event stats, top contributors, reports summary.	|Supervisors	|
+|**Admin Dashboard** (`/dashboard/admin`)	|Global view: total users, events, universities, leaderboards, analytics charts.	|Admins	|
+
+#### **UI Elements:**
+
+* Cards: Points, Badges, Contributions, Rankings
+* Charts: Bar/Line/Pie (Recharts/Chart.js)
+* Leaderboard table
+* Responsive grid layout
+
+#### **Dashboard Pages**
+
+1. **User Dashboard (/dashboard)**
+
+    * Add **Notifications panel/dropdown**:
+        * Displays **all unread/read notifications**.
+        * Filters by type (`LEVEL_UP`, `BADGE_EARNED`, `EVENT_UPDATE`, `BLOG_APPROVAL`, `SYSTEM_ALERT`).
+    * Optional **pop-up/modal** for instant feedback on new badges/level promotion.
+    * **Settings Page (/settings)**
+        * Add option to **enable/disable notifications pop-ups**.
+
+* * *
+
+### 🎉 5. **Event Management Pages**
+
+|Page	|Description	|Typical Users	|
+|---	|---	|---	|
+|**Event List Page** (`/events`)	|Displays all upcoming/past events with filter by category, date, or university.	|All	|
+|---	|---	|---	|
+|**Event Details Page** (`/events/:id`)	|Shows event description, organizer, location, and buttons to apply (Organizer/Volunteer/Attendee).	|All	|
+|**Event Proposal Page** (`/events/new`)	|Form to create a new event (title, date, description, type).	|All	|
+|**Event Approval Page** (`/events/approvals`)	|Supervisors review and approve/reject proposals.	|Supervisors, Admins	|
+|**My Events Page** (`/my-events`)	|Shows events a user has created or joined.	|All	|
+
+* Add notifications for:
+    * Event approval/cancellation (`type = EVENT_UPDATE`)
+    *  Notifications are of types: EVENT_UPDATE (event approved/cancelled), BLOG_APPROVAL (blog approved/rejected), LEVEL_UP, BADGE_EARNED, SYSTEM_ALERT. 
+
+* * *
+
+### 📝 6. **Blog & Opportunity Pages**
+
+|Page	|Description	|Typical Users	|
+|---	|---	|---	|
+|**Blog Feed Page** (`/blogs`)	|Lists published blogs, internships, and jobs. Supports search and filters.	|All	|
+|---	|---	|---	|
+|**Blog Details Page** (`/blogs/:id`)	|Displays blog content with author details and report button.	|All	|
+|**Create Blog Page** (`/blogs/new`)	|Form to create new blog or opportunity post.	|Students, Supervisors	|
+|**Approval Queue Page** (`/blogs/approvals`)	|Supervisor review area for pending blog/opportunity posts.	|Supervisors	|
+|**My Posts Page** (`/my-blogs`)	|Shows all posts created by the logged-in user.	|Students, Supervisors	|
+
+* Add notifications for:
+    * Blog approval/rejection (`type = BLOG_APPROVAL`)
+    *  Notifications are of types: EVENT_UPDATE (event approved/cancelled), BLOG_APPROVAL (blog approved/rejected), LEVEL_UP, BADGE_EARNED, SYSTEM_ALERT. 
+
+* * *
+
+### 🏅 7. **Gamification Pages**
+
+|Page	|Description	|Typical Users	|
+|---	|---	|---	|
+|**Leaderboard Page** (`/leaderboard`)	|Displays top students or top events by points. Users can select **University-level** (local) or **Global-level** leaderboard using a dropdown or toggle.	|All	|
+|---	|---	|---	|
+|**Badges Page** (`/badges`)	|Shows all badge types with descriptions and requirements.	|All	|
+
+* **Badges Page (/badges)**
+    * Show **earned badges** vs **locked badges**.
+    *  Badge pop-up/modal is mandatory for first-time level/badge achievements. Optional highlighting of latest badge on Badges page. 
+* **Leaderboard Page (/leaderboard)**
+    * No direct changes, but notifications could optionally appear when leaderboard changes due to level-up.
+
+* * *
+
+### ⚙️8. **Admin Management Pages**
+
+|Page	|Description	|Typical Users	|
+|---	|---	|---	|
+|**User Management Page** (`/admin/users`)	|Admin can view, edit, or deactivate users.	|Admin	|
+|---	|---	|---	|
+|**University Management Page** (`/admin/universities`)	|Manage university portals (add/edit/delete).	|Admin	|
+|**System Analytics Page** (`/admin/analytics`)	|View system-wide metrics (total events, active users).	|Admin	|
+
+* * *
+
+## 2. Figma Design
+

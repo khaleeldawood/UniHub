@@ -1,0 +1,106 @@
+package com.example.unihub.config;
+
+import com.example.unihub.security.CustomUserDetailsService;
+import com.example.unihub.security.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final CustomUserDetailsService userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configure(http))
+            .authorizeHttpRequests(auth -> auth
+                // Preflight
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // Public endpoints
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/api/gamification/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/admin/universities").permitAll()
+
+                // Events - public reads, authenticated writes
+                .requestMatchers(HttpMethod.GET, "/api/events/my-events", "/api/events/my-participations").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/events", "/api/events/*/join", "/api/events/*/leave").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/events/*").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/events/*").authenticated()
+
+                // Admin endpoints (except universities list)
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                
+                // Supervisor and Admin endpoints
+                .requestMatchers("/api/events/*/approve", "/api/events/*/reject", "/api/events/*/cancel").hasAnyRole("SUPERVISOR", "ADMIN")
+                .requestMatchers("/api/blogs/*/approve", "/api/blogs/*/reject").hasAnyRole("SUPERVISOR", "ADMIN")
+
+                // Blogs - public reads, authenticated writes
+                .requestMatchers(HttpMethod.GET, "/api/blogs/my-blogs").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/blogs/pending").hasAnyRole("SUPERVISOR", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/blogs/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/blogs").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/blogs/*").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/blogs/*").authenticated()
+                
+                // Reports - Students can submit, Supervisors/Admins can view and manage
+                .requestMatchers("/api/reports/blogs/*/review", "/api/reports/blogs/*/dismiss").hasAnyRole("SUPERVISOR", "ADMIN")
+                .requestMatchers("/api/reports/events/*/review", "/api/reports/events/*/dismiss").hasAnyRole("SUPERVISOR", "ADMIN")
+                // Allow students to submit reports (POST)
+                .requestMatchers(HttpMethod.POST, "/api/reports/blogs/*", "/api/reports/events/*").authenticated()
+                // List reports (GET) - only Supervisors/Admins
+                .requestMatchers(HttpMethod.GET, "/api/reports/blogs", "/api/reports/events").hasAnyRole("SUPERVISOR", "ADMIN")
+                .requestMatchers("/api/reports/**").authenticated()
+                
+                // All authenticated users
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}

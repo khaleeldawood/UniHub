@@ -1,0 +1,203 @@
+# UniHub [*] - Database Design
+
+## **1. High-Level Database Overview (HLD)**
+
+|Table Name	|Purpose	|Key Columns / Attributes	|Notes	|
+|---	|---	|---	|---	|
+|users	|Store all user accounts and profiles	|user_id, university_id, name, email, password_hash, role,, points, current_badge_id	|points tracked for gamification	|
+|---	|---	|---	|---	|
+|user_badges	|Track historical badges earned by users	|user_badge_id, user_id, badge_id, earned_at	|New table: stores all badges a user has earned historically	|
+|universities	|Store university portals	|university_id, name, description, logo_url	|Single logo per university	|
+|events	|Store events created by users	|event_id, university_id, title, description, location, start_date, end_date, type, status, created_by	|Status: PENDING, APPROVED, CANCELLED	|
+|event_participants	|Track users participating in events	|participant_id, event_id, user_id, role, points_awarded	|Roles: ORGANIZER, VOLUNTEER, ATTENDEE. Points can be calculated dynamically; stored only for historical snapshots	|
+|blogs	|Store blog posts, internships, opportunities	|blog_id, university_id, author_id, title, content, category, status, is_global	|Status: PENDING, APPROVED, REJECTED. university_id nullable for global blogs (NULL if global).	|
+|points_log	|Track points earned by users	|points_log_id, user_id, source_type, source_id, points, description	|Source can be EVENT, BLOG, OTHER. description optional for OTHER points sources	|
+|badges	|Store badges/levels and thresholds	|badge_id, name, description, points_threshold	|Each badge corresponds to a points threshold	|
+|notifications	|Store messages/alerts for users	|notification_id, user_id, message, type, is_read, link_url	|Types: LEVEL_UP, BADGE_EARNED, EVENT_UPDATE, BLOG_APPROVAL, SYSTEM_ALERT. link_url optional reference to related content	|
+|blog_reports	|Track reported blogs	|report_id, blog_id, reported_by, reason, status	|Helps supervisors/admins review content. status: PENDING, REVIEWED, DISMISSED	|
+|event_reports	|Track reported events	|report_id, event_id, reported_by, reason, status	|Helps supervisors/admins review content. status: PENDING, REVIEWED, DISMISSED	|
+
+* * *
+
+## **2. Detailed Table Definitions**
+
+### **2.1 Users Table**
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|user_id	|SERIAL PRIMARY KEY	|Unique user ID	|
+|---	|---	|---	|
+|university_id	|INT REFERENCES universities(university_id) ON DELETE SET NULL	|University user belongs to	|
+|name	|VARCHAR(255)	|Full name	|
+|email	|VARCHAR(255) UNIQUE	|University email	|
+|password_hash	|VARCHAR(255)	|Hashed password	|
+|role	|VARCHAR(50)	|STUDENT, SUPERVISOR, ADMIN	|
+|points	|INT DEFAULT 0	|Total points earned	|
+|current_badge_id	|INT REFERENCES badges(badge_id)	|Current badge/level	|
+|created_at	|TIMESTAMP DEFAULT NOW()	|Account creation	|
+|updated_at	|TIMESTAMP DEFAULT NOW()	|Last update	|
+
+* * *
+
+### **2.2 Universities Table**
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|university_id	|SERIAL PRIMARY KEY	|Unique ID	|
+|---	|---	|---	|
+|name	|VARCHAR(255)	|University name	|
+|description	|TEXT	|Description of the university	|
+|created_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+|updated_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+
+* * *
+
+### **2.3 Events Table**
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|event_id	|SERIAL PRIMARY KEY	|Unique event ID	|
+|---	|---	|---	|
+|university_id	|INT REFERENCES universities(university_id) ON DELETE SET NULL	|Event’s university	|
+|title	|VARCHAR(255)	|Event title	|
+|description	|TEXT	|Event description	|
+|location	|VARCHAR(255)	|Event location	|
+|start_date	|TIMESTAMP	|Start datetime	|
+|end_date	|TIMESTAMP	|End datetime	|
+|type	|VARCHAR(50)	|Workshop, Seminar, etc.	|
+|status	|VARCHAR(50) DEFAULT 'PENDING'	|PENDING, APPROVED, CANCELLED	|
+|created_by	|INT REFERENCES users(user_id)	|Creator	|
+|created_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+|updated_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+
+* * *
+
+### **2.5 Event Participants Table**
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|participant_id	|SERIAL PRIMARY KEY	|Unique entry	|
+|---	|---	|---	|
+|event_id	|INT REFERENCES events(event_id) ON DELETE CASCADE	|Associated event	|
+|user_id	|INT REFERENCES users(user_id) ON DELETE CASCADE	|Participating user	|
+|role	|VARCHAR(50)	|ORGANIZER, VOLUNTEER, ATTENDEE	|
+|points_awarded	|INT	|Points for participation	|
+|joined_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+
+* * *
+
+### **2.6 Blogs Table**
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|blog_id	|SERIAL PRIMARY KEY	|Unique blog ID	|
+|---	|---	|---	|
+|university_id	|INT REFERENCES universities(university_id)	|Blog’s university	|
+|author_id	|INT REFERENCES users(user_id)	|Blog author	|
+|title	|VARCHAR(255)	|Blog title	|
+|content	|TEXT	|Blog content	|
+|category	|VARCHAR(50)	|Opportunity, Internship, Article	|
+|status	|VARCHAR(50) DEFAULT 'PENDING'	|PENDING, APPROVED, REJECTED	|
+|is_global	|BOOLEAN DEFAULT FALSE	|Visibility across all universities	|
+|created_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+|updated_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+
+* * *
+
+### **2.8 Points Log Table (Updated)**
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|points_log_id	|SERIAL PRIMARY KEY	|Unique entry	|
+|---	|---	|---	|
+|user_id	|INT REFERENCES users(user_id)	|User earning points	|
+|source_type	|VARCHAR(50)	|EVENT, BLOG, OTHER	|
+|source_id	|INT	|ID of source event/blog	|
+|points	|INT	|Points awarded	|
+|description	|TEXT NULL	|Optional description for OTHER points source	|
+|created_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+
+* * *
+
+### **2.9 Badges Table**
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|badge_id	|SERIAL PRIMARY KEY	|Unique badge ID	|
+|---	|---	|---	|
+|name	|VARCHAR(255)	|Level name	|
+|description	|TEXT	|Criteria	|
+|points_threshold	|INT	|Points required	|
+|created_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+|updated_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+
+* * *
+
+### **2.10 Notifications Table (Updated)**
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|notification_id	|SERIAL PRIMARY KEY	|Unique ID	|
+|---	|---	|---	|
+|user_id	|INT REFERENCES users(user_id) ON DELETE CASCADE	|User receiving notification	|
+|message	|TEXT	|Notification content	|
+|type	|VARCHAR(50)	|LEVEL_UP, BADGE_EARNED, EVENT_UPDATE, BLOG_APPROVAL, SYSTEM_ALERT	|
+|is_read	|BOOLEAN DEFAULT FALSE	|Read status	|
+|link_url	|TEXT NULL	|Optional link to related content (blog, event, badge page)	|
+|created_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+
+* * *
+
+### **2.11 Blog Reports Table (Updated)**
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|report_id	|SERIAL PRIMARY KEY	|Unique report ID	|
+|---	|---	|---	|
+|blog_id	|INT REFERENCES blogs(blog_id)	|Reported blog	|
+|reported_by	|INT REFERENCES users(user_id)	|Reporter	|
+|reason	|TEXT	|Reason for reporting	|
+|status	|VARCHAR(50) DEFAULT 'PENDING'	|PENDING, REVIEWED, DISMISSED	|
+|created_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+
+* * *
+
+### **2.12 Event Reports Table (Updated)**
+
+|Column	|Type	|Description	|
+|---	|---	|---	|
+|report_id	|SERIAL PRIMARY KEY	|Unique report ID	|
+|---	|---	|---	|
+|event_id	|INT REFERENCES events(event_id)	|Reported event	|
+|reported_by	|INT REFERENCES users(user_id)	|Reporter	|
+|reason	|TEXT	|Reason for reporting	|
+|status	|VARCHAR(50) DEFAULT 'PENDING'	|PENDING, REVIEWED, DISMISSED	|
+|created_at	|TIMESTAMP DEFAULT NOW()	|Timestamp	|
+
+* * *
+
+## **3. Relationships Between Tables**
+
+1. Users ↔ Universities → Many-to-One (users.university_id → universities.university_id)
+2. Events ↔ Universities → Many-to-One (events.university_id → universities.university_id)
+3. Blogs ↔ Universities → Many-to-One (blogs.university_id → universities.university_id; may be NULL for global blogs; filter logic should consider `is_global` flag)
+4. Events ↔ Users (Participants) → Many-to-Many via `event_participants`
+5. Users ↔ Points Log → One-to-Many
+6. Users ↔ Badges → One-to-One (current badge)
+7. Users ↔ User Badges → One-to-Many (historical badges)
+8. Users ↔ Notifications → One-to-Many
+9. Blogs/Events ↔ Reports → One-to-Many (blog_reports, event_reports)
+
+* * *
+
+## **4. Database Flow / Interaction**
+
+1. **Points & Badge System**
+    1. User action (blog/event participation) → add points to `points_log`
+    2. Check against `badges.points_threshold` → if crossed: update `users.current_badge_id` and insert notification
+    3. Frontend optionally displays pop-up/modal for immediate feedback
+2. **Notifications Flow**
+    1. Notifications created in `notifications` table → shown in dashboard panel → user can mark as read
+3. **Event/Blog Approval Flow**
+    1. Supervisor approves → update `status` → create notification for author
+

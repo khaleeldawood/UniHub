@@ -1,0 +1,98 @@
+# UniHub [1] - Project Planning
+
+## 1. Introduction
+
+### 1.1 Overview
+
+UniHub is a comprehensive university platform designed to connect students, supervisors, and administrators through a centralized hub for events, blogs, opportunities, and gamified engagement. The system provides an intuitive, role-based interface, enabling users to propose and participate in events, publish and review blogs and internship/job opportunities, and track their contributions through points and badges. By integrating real-time updates, analytics dashboards, and responsive design, UniHub facilitates seamless collaboration, engagement, and visibility across multiple university portals and a global network.
+
+The platform is structured around core modules, including Event Management, Blog & Opportunity Management, Gamification, User Management, and System Analytics, all of which interact with a points and badge system. Supervisor and admin roles ensure content quality and moderation, while students enjoy a gamified environment that encourages active participation and contribution.
+
+### 1.2 Members
+
+Project Repo: https://github.com/ahmedyraw/unihub
+
+### **1.3Timeline**
+
+
+## 2. Scope
+
+### 2.1 What UniHub Does 
+
+The primary objectives of the UniHub system are to:
+
+* **Event Management** – Students can participate in or organize events; supervisors approve events.
+* **Blogs & Opportunities** – Students/supervisors can create blogs or post jobs/internships; supervisors approve content.
+* **Gamification** – Points and badges reward participation; instant pop-up notifications enhance motivation upon reaching new levels or badges.
+    * “Enhance user motivation by providing instant, gamified feedback via pop-up notifications upon badge or level promotions.”
+* **Dashboards** – Role-based dashboards for students, supervisors, and admins with analytics, leaderboards, and notifications.
+* **Multi-University & Global Portal** – Each university has its own portal; approved content can appear globally.
+* **Real-Time Updates** – Dashboards, leaderboards, and notifications update in real time using WebSockets. 
+
+### **2.2 User Roles**
+
+There are **3 primary user roles**:
+
+|Role	|Access / Responsibilities	|
+|---	|---	|
+|**Student**	|Create events/blogs, join events, view leaderboard, earn points/badges.	|
+|---	|---	|
+|**Supervisor**	|Approve events/blogs, review reports, moderate content.	|
+|**Admin**	|Manage users/universities, view system-wide analytics, oversee global leaderboards.	|
+
+### **2.3 Core Modules & Flow**
+
+1. **Authentication**
+    1. Users log in, register, or reset passwords.
+    2. Roles determine which dashboard & features are visible.
+2. **Home / Landing Page**
+    1. Public access: preview events, blogs, and leaderboard sneak peek.
+    2. CTAs guide users to register/login.
+3. **Event Management Flow**
+    1. Student proposes an event (`Event Proposal Page`).
+    2. Supervisor/Admin reviews (`Event Approval Page`) and approves/rejects.
+    3. Approved events show in `Event List Page`.
+    4. Users join as Organizer/Volunteer/Attendee.
+    5. Points allocated based on role: Organizer = 50, Volunteer = 20, Attendee = 10.
+    6. Supervisors/admins can cancel events, notify participants.
+4. **Blog & Opportunity Flow**
+    1. Student/supervisor creates post (`Create Blog Page`).
+    2. Supervisor approval required (`Approval Queue Page`).
+    3. Approved posts appear on `Blog Feed Page`.
+    4. Reports trigger content moderation (`Reports Page`).
+    5. Posts tagged "Global" appear across all university portals.
+    6. Student Blog/Opportunity Post Approved = 30 points
+    7. Supervisor Blog/Opportunity Post Approved = 50 points
+5. **Gamification**
+    1. Leaderboards (`Leaderboard Page`) show top students/events.
+    2. Badges (`Badges Page`) unlock automatically based on points.
+    3. Real-time updates ensure live leaderboards and notifications.
+    4.  Includes points, badges, levels, and user ranking logic. Users receive real-time notifications and on-screen pop-ups when they reach a new level or earn a badge. 
+6. **Dashboards**
+    1. Student Dashboard: points, badges, events, blog updates, leaderboard snippet.
+    2. Supervisor Dashboard: approvals pending, stats, reports.
+    3. Admin Dashboard: global metrics, analytics, extended leaderboards.
+7. **Admin Management**
+    1. Manage users/universities.
+    2. Access system analytics and global rankings.
+8. **Integration**
+    1. Points and badges unify Event & Blog modules.
+    2. WebSocket ensures real-time updates across modules.
+    3. Multi-university support aggregates global content for cross-university visibility.
+
+## 3. References
+
+### 2.1 Docs
+
+1. [UniHub [1] - Project Planning](https://quip.com/NobRAjKutaa1)
+2. [UniHub [2] - Requirements & Analysis](https://quip.com/O0DKAY7Qjtc3)
+3. [UniHub [3] - System Design](https://quip.com/yX6aAs9HzDHb)
+4. [UniHub [4] -  Development](https://quip.com/tm5UArslV1be)
+5. [UniHub [5] - Testing](https://quip.com/3XjiA7qePnME)
+6. [UniHub [6] - Deployment](https://quip.com/OYivAWSlDikI)
+7. [UniHub [7] -  Evaluation & Documentation](https://quip.com/na2oAFqbKXcL)
+
+### 2.2 Project
+
+* [Project Example](https://www.youtube.com/watch?v=_UNE39gZrV4)
+

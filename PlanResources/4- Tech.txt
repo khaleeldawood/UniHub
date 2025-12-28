@@ -1,0 +1,29 @@
+# UniHub [4] -  Development
+
+## **1. Technical Architecture Stack**
+
+### 1.1 Tech Stack
+
+|Layer	|Technology	|Purpose	|
+|---	|---	|---	|
+|**Frontend**	|React + Vite + Bootstrap	|Responsive, interactive UI	|
+|---	|---	|---	|
+|**Backend**	|Spring Boot + Spring Security + Spring Data JPA + Lombok	|API + business logic + authentication/authorization	|
+|**Build Tool**	|Maven	|Used for dependency management and packaging.	|
+|**Database**	|PostgreSQL	|Store users, events, blogs, points, badges	|
+|**API Format**	|REST (JSON)	|Backend–Frontend communication.	|
+|**Real-Time Updates**	|Spring WebSocket (STOMP over SockJS)	|Live leaderboard and notifications	|
+|**Charts**	|Recharts / Chart.js	|Dashboard analytics visualization	|
+|**Auth**	|JWT	|Secure API endpoints	|
+|**Version Control**	|Git + GitHub	|Collaboration	|
+|**Deployment**	|TBD	|Single deployable backend serving React build	|
+
+### **1.2 Flow**
+
+1. React app consumes REST APIs from Spring Boot backend.
+2. Backend interacts with PostgreSQL via Spring Data JPA.
+3. WebSocket pushes live changes to frontend.
+4. Authentication is JWT-based; role-based access controls (Student/Supervisor/Admin) enforce permissions.
+
+* * *
+

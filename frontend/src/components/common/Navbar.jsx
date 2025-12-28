@@ -1,0 +1,195 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Navbar as BSNavbar, Nav, Container, NavDropdown, Badge, Button } from 'react-bootstrap';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { USER_ROLES } from '../../utils/constants';
+import notificationService from '../../services/notificationService';
+import { useWebSocket } from '../../hooks/useWebSocket';
+
+const Navbar = () => {
+  const { user, logout, isAuthenticated } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const { notificationReceived } = useWebSocket();
+  const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user) {
+      loadUnreadCount();
+    }
+  }, [user]);
+
+  // Update unread count when new notification is received
+  useEffect(() => {
+    if (notificationReceived && user) {
+      loadUnreadCount();
+    }
+  }, [notificationReceived, user]);
+
+  // Listen for notification read events
+  useEffect(() => {
+    const handleNotificationRead = () => {
+      if (user) {
+        loadUnreadCount();
+      }
+    };
+
+    window.addEventListener('notificationRead', handleNotificationRead);
+    return () => window.removeEventListener('notificationRead', handleNotificationRead);
+  }, [user]);
+
+  const loadUnreadCount = async () => {
+    try {
+      const count = await notificationService.getUnreadCount();
+      setUnreadCount(count);
+    } catch (error) {
+      console.error('Failed to load unread count:', error);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  return (
+    <BSNavbar 
+      bg={theme === 'light' ? 'light' : 'dark'} 
+      variant={theme === 'light' ? 'light' : 'dark'} 
+      expand="lg"
+      sticky="top" 
+      className="navbar-theme"
+    >
+      <Container>
+        <BSNavbar.Brand as={Link} to="/" style={{ fontSize: '1.75rem', fontWeight: '700' }}>
+          🎓 UniHub
+        </BSNavbar.Brand>
+        <BSNavbar.Toggle aria-controls="basic-navbar-nav" />
+        <BSNavbar.Collapse id="basic-navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link as={Link} to="/events" style={{ fontWeight: '500', fontSize: '1.05rem', padding: '0.5rem 1rem' }}>📅 Events</Nav.Link>
+            <Nav.Link as={Link} to="/blogs" style={{ fontWeight: '500', fontSize: '1.05rem', padding: '0.5rem 1rem' }}>📝 Blogs</Nav.Link>
+            <Nav.Link as={Link} to="/leaderboard" style={{ fontWeight: '500', fontSize: '1.05rem', padding: '0.5rem 1rem' }}>🏆 Leaderboard</Nav.Link>
+            <Nav.Link as={Link} to="/badges" style={{ fontWeight: '500', fontSize: '1.05rem', padding: '0.5rem 1rem' }}>🎖️ Badges</Nav.Link>
+          </Nav>
+          
+          <Nav>
+            {isAuthenticated() ? (
+              <>
+                <Nav.Link as={Link} to="/notifications" className="position-relative" style={{ fontWeight: '500', fontSize: '1.05rem', padding: '0.5rem 1rem' }}>
+                  🔔 Notifications
+                  {unreadCount > 0 && (
+                    <Badge bg="danger" pill className="position-absolute top-0 start-100 translate-middle" style={{ fontSize: '0.75rem', fontWeight: '700' }}>
+                      {unreadCount}
+                    </Badge>
+                  )}
+                </Nav.Link>
+                
+                <Button
+                  onClick={toggleTheme}
+                  variant="link"
+                  className="theme-toggle nav-link"
+                  title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                  style={{ padding: '0.5rem', marginLeft: '0.5rem' }}
+                >
+                  {theme === 'light' ? '🌙' : '☀️'}
+                </Button>
+                
+                <NavDropdown 
+                  title={`👤 ${user.name}`} 
+                  id="user-dropdown"
+                  align="end"
+                  style={{ fontWeight: '600', fontSize: '1.05rem' }}
+                >
+                  <NavDropdown.Item as={Link} to="/dashboard">
+                    Dashboard
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/my-events">
+                    My Events
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/my-blogs">
+                    My Blogs
+                  </NavDropdown.Item>
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item as={Link} to={`/profile/${user.userId}`}>
+                    Profile
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/settings">
+                    Settings
+                  </NavDropdown.Item>
+                  
+                  {(user.role === USER_ROLES.SUPERVISOR || user.role === USER_ROLES.ADMIN) && (
+                    <>
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item as={Link} to="/events/approvals">
+                        Event Approvals
+                      </NavDropdown.Item>
+                      <NavDropdown.Item as={Link} to="/blogs/approvals">
+                        Blog Approvals
+                      </NavDropdown.Item>
+                      <NavDropdown.Item as={Link} to="/reports">
+                        Reports
+                      </NavDropdown.Item>
+                    </>
+                  )}
+                  
+                  {user.role === USER_ROLES.ADMIN && (
+                    <>
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item as={Link} to="/admin/users">
+                        Manage Users
+                      </NavDropdown.Item>
+                      <NavDropdown.Item as={Link} to="/admin/universities">
+                        Manage Universities
+                      </NavDropdown.Item>
+                      <NavDropdown.Item as={Link} to="/admin/analytics">
+                        Analytics
+                      </NavDropdown.Item>
+                    </>
+                  )}
+                  
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item onClick={handleLogout}>
+                    Logout
+                  </NavDropdown.Item>
+                </NavDropdown>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={toggleTheme}
+                  variant="link"
+                  className="theme-toggle nav-link"
+                  title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                  style={{ padding: '0.5rem', marginLeft: '0.5rem', marginRight: '0.5rem' }}
+                >
+                  {theme === 'light' ? '🌙' : '☀️'}
+                </Button>
+                <Button 
+                  as={Link} 
+                  to="/login" 
+                  variant="outline-primary" 
+                  className="me-2"
+                  style={{ fontWeight: '600', padding: '0.5rem 1.25rem', borderWidth: '2px' }}
+                >
+                  Login
+                </Button>
+                <Button 
+                  as={Link} 
+                  to="/register" 
+                  variant="primary"
+                  style={{ fontWeight: '600', padding: '0.5rem 1.25rem' }}
+                >
+                  Register
+                </Button>
+              </>
+            )}
+          </Nav>
+        </BSNavbar.Collapse>
+      </Container>
+    </BSNavbar>
+  );
+};
+
+export default Navbar;

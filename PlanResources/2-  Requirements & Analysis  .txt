@@ -1,0 +1,149 @@
+#  UniHub [2] - Requirements & Analysis  
+
+## 🏠 1. Authentication Pages
+
+
+
+|ID	|Requirement	|Description	|Typical Users	|
+|---	|---	|---	|---	|
+|**AUTH-01**	|Login	|System shall allow users to log in using university email and password.	|All	|
+|---	|---	|---	|---	|
+|**AUTH-02**	|Registration	|System shall allow new users (students or supervisors) to register with validation and optional email verification.	|All	|
+|**AUTH-03**	|Forgot Password	|System shall allow users to reset their password via email-based recovery.	|All	|
+
+* * *
+
+## 🏠 2. Home / Landing Page
+
+
+
+|ID	|Requirement	|Description	|Typical Users	|
+|---	|---	|---	|---	|
+|**HP-01**	|Public Access	|Home page shall be accessible without login.	|All	|
+|---	|---	|---	|---	|
+|**HP-02**	|Introduction	|Home page shall introduce UniHub features and purpose.	|All	|
+|**HP-03**	|Navigation	|System shall provide navigation links to Login, Register, Events, Blogs.	|All	|
+|**HP-04**	|Content Preview	|System shall display latest events/blogs (read-only) and optional leaderboard sneak peek.	|All	|
+|**HP-05**	|Call-to-Action	|System shall provide clear CTA buttons (“Register”, “Login”).	|All	|
+|**HP-06**	|Auto Redirect	|System shall redirect logged-in users automatically to their dashboard.	|All	|
+
+* * *
+
+## 🏾 3. Utility Pages
+
+
+
+|ID	|Requirement	|Description	|Typical Users	|
+|---	|---	|---	|---	|
+|**UTIL-01**	|Reports Page	|System shall show reported blogs or events for supervisor review.	|Supervisors, Admins	|
+|---	|---	|---	|---	|
+|**UTIL-02**	|Profile Page	|System shall display user’s profile including badges, posts, and events.	|All	|
+|**UTIL-03**	|Settings Page	|System shall allow users to update password and notification preferences.
+
+Notification Types: LEVEL_UP, BADGE_EARNED, EVENT_UPDATE, BLOG_APPROVAL, SYSTEM_ALERT	|All	|
+|**UTIL-04**	|Error Pages	|System shall display 404 or Access Denied pages when user navigates incorrectly or unauthorized.	|All	|
+
+* * *
+
+## 📊 4. Dashboard Pages
+
+
+
+|ID	|Requirement	|Description	|Typical Users	|
+|---	|---	|---	|---	|
+|**DB-01**	|User Dashboard	|System shall display student’s total points, badges, upcoming events, recent blogs, and leaderboard snippet.	|Students	|
+|---	|---	|---	|---	|
+|**DB-02**	|Supervisor Dashboard	|System shall display pending approvals, event stats, top contributors, and report summary.	|Supervisors	|
+|**DB-03**	|Admin Dashboard	|System shall display global metrics: total users, events, universities, leaderboards, analytics charts.	|Admins	|
+|**DB-04**	|Real-Time Updates	|System shall update dashboard cards, charts, and leaderboard snippet in real-time using WebSockets.
+
+Implementation Note: Dashboard updates, points, badges, and leaderboards will be updated in real-time using WebSocket events from backend.	|All	|
+|**DB-05**	|Charts	|System shall visualize points, engagement, or activity trends using bar/line/pie charts.	|All	|
+|**DB-06**	|Leaderboard Snapshot	|Dashboard shall include a small leaderboard snippet showing top members or events.	|All	|
+|**DB-07**	|Responsive Layout	|Dashboard shall be adaptive to mobile and desktop screens.	|All	|
+|**DB-08**	|Notifications	|System shall show notifications for approvals, badge achievements, and events.	|All	|
+
+* * *
+
+## 🎉 5. Event Management Pages
+
+
+
+|ID	|Requirement	|Description	|Typical Users	|
+|---	|---	|---	|---	|
+|**EV-01**	|Event List Page	|System shall display all upcoming and past events with filtering by date, category, or university.	|All	|
+|---	|---	|---	|---	|
+|**EV-02**	|Event Details Page	|System shall display event details, location, organizer, and options to apply as Organizer, Volunteer, or Attendee.	|All	|
+|**EV-03**	|Event Proposal Page	|System shall allow users to propose a new event with title, date, description, location, and type.	|All	|
+|**EV-04**	|Event Approval Page	|System shall allow supervisors to approve or reject event proposals.	|Supervisors, Admins	|
+|**EV-05**	|My Events Page	|System shall display events that a user has created or joined.	|All	|
+|**EV-06**	|Points Assignment	|System shall assign points based on the user’s role (Organizer = 50, Volunteer = 20, Attendee = 10).	|All	|
+|**EV-07**	|Event Cancellation	|System shall allow supervisors or admins to cancel an event and notify participants.	|Supervisors, Admins	|
+
+* * *
+
+## 📝 6. Blog & Opportunity Pages
+
+
+
+|ID	|Requirement	|Description	|Typical Users	|
+|---	|---	|---	|---	|
+|**BL-01**	|Blog Feed Page	|System shall display published blogs, internships, and jobs with search and filter options.	|All	|
+|---	|---	|---	|---	|
+|**BL-02**	|Blog Details Page	|System shall display full blog content and provide a report button.	|All	|
+|**BL-03**	|Create Blog Page	|System shall allow students/supervisors to create blog posts or opportunities (title, content, tags, category).	|Students, Supervisors	|
+|**BL-04**	|Approval Queue Page	|System shall allow supervisors to review pending blog/opportunity posts.	|Supervisors	|
+|**BL-05**	|My Posts Page	|System shall display all posts created by the logged-in user.	|Students, Supervisors	|
+|**BL-06**	|Content Moderation	|System shall filter inappropriate or abusive content automatically.	|All	|
+|**BL-07**	|Global Blog Visibility	|System shall allow posts tagged “Global” to appear across all university portals.	|All	|
+
+* * *
+
+## 🏅 7. Gamification Pages
+
+
+
+|ID	|Requirement	|Description	|Typical Users	|
+|---	|---	|---	|---	|
+|**GM-01**	|Leaderboard Page	|System shall display top students or top events by points across universities.	|All	|
+|---	|---	|---	|---	|
+|**GM-02**	|Leaderboard Toggle	|System shall provide dropdown or toggle to switch between **Members** and **Events** leaderboard views.	|All	|
+|**GM-03**	|Members Ranking	|When selected, system shall display students ranked by points and badges.	|All	|
+|**GM-04**	|Events Ranking	|When selected, system shall display events ranked by engagement (participants/volunteers).	|All	|
+|**GM-05**	|Leaderboard Scope Filter	|System shall allow users to switch between **University-level** (local) and **Global-level** leaderboard. University-level shows only members or events from the user’s university; Global-level shows all universities combined.	|All	|
+|**GM-06**	|Badges Page	|System shall display all badge types and the criteria to earn them.	|All	|
+|**GM-07**	|Real-Time Updates	|Leaderboard and badges shall update dynamically via WebSocket events.	|All	|
+|GM-08	|Level Promotion Notification	|System shall notify users with a pop-up/modal immediately upon reaching a new level or earning a badge. Pop-ups are mandatory unless disabled in Settings.	|
+All	|
+
+* * *
+
+## ⚙️ 8. Admin Management Pages
+
+
+
+|ID	|Requirement	|Description	|Typical Users	|
+|---	|---	|---	|---	|
+|**AD-01**	|User Management Page	|System shall allow admin to view, edit, or deactivate users.	|Admin	|
+|---	|---	|---	|---	|
+|**AD-02**	|University Management Page	|System shall allow admin to manage university portals (add/edit/delete).	|Admin	|
+|**AD-03**	|System Analytics Page	|System shall display system-wide metrics such as total events, blogs, active users, and engagement charts.	|Admin	|
+|**AD-04**	|Extended Leaderboards	|Admin can filter global rankings by University or view combined global rankings.	|Admin	|
+
+* * *
+
+## ⚙️ Integration & Points System (Cross-Module)
+
+
+
+|ID	|Requirement	|Description	|Typical Users	|
+|---	|---	|---	|---	|
+|**IN-01**	|Shared Points	|Both Event and Blog modules contribute points to the user.	|All	|
+|---	|---	|---	|---	|
+|**IN-02**	|Badge Allocation	|Points unlock badges automatically based on thresholds.	|All	|
+|**IN-03**	|Supervisor Approval	|Content from both modules requires supervisor approval before publication.	|All	|
+|**IN-04**	|Notifications	|System shall notify users on approvals, point gains, or badges.	|All	|
+|**IN-05**	|Multi-University	|Each university portal shows its own data; global portal aggregates all approved content.	|All	|
+|**IN-06**	|Auto Badge Update	|When a user’s points exceed a badge threshold, the system automatically updates the user’s current badge/level.	|All	|
+|IN-07	|Badge Notification Log	|When a user earns a badge or is promoted to a new level, a notification record shall be stored in the database and optionally shown as a pop-up/modal.	|All	|
+
