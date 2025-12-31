@@ -3,10 +3,12 @@ package com.example.unihub.service;
 import com.example.unihub.enums.UserRole;
 import com.example.unihub.exception.ResourceNotFoundException;
 import com.example.unihub.model.Badge;
+import com.example.unihub.model.EmailVerificationToken;
 import com.example.unihub.model.University;
 import com.example.unihub.model.User;
 import com.example.unihub.model.UserBadge;
 import com.example.unihub.repository.BadgeRepository;
+import com.example.unihub.repository.EmailVerificationTokenRepository;
 import com.example.unihub.repository.UniversityRepository;
 import com.example.unihub.repository.UserBadgeRepository;
 import com.example.unihub.repository.UserRepository;
@@ -29,6 +31,7 @@ public class UserService {
     private final UserBadgeRepository userBadgeRepository;
     private final BadgeRepository badgeRepository;
     private final UniversityRepository universityRepository;
+    private final EmailVerificationTokenRepository verificationTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -75,6 +78,7 @@ public class UserService {
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setRole(role != null ? role : UserRole.STUDENT);
+        user.setEmailVerified(true); // Admin-created users are pre-verified
         user.setPoints(0);
         
         if (universityId != null) {
@@ -255,6 +259,9 @@ public class UserService {
     public void deactivateUser(Long userId) {
         User user = getUserById(userId);
         log.info("Deleting user {} ({})", userId, user.getEmail());
+        
+        // Delete verification tokens first
+        verificationTokenRepository.findByUser(user).ifPresent(verificationTokenRepository::delete);
         
         // Delete user - cascading will handle related entities
         userRepository.delete(user);
