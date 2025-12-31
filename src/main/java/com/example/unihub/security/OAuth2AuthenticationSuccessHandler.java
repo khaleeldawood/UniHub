@@ -50,7 +50,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             
             log.info("JWT token generated for user: {}", user.getEmail());
             
-            String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/redirect")
+            String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/#/oauth2/redirect")
                     .queryParam("token", token)
                     .build().toUriString();
             
@@ -58,7 +58,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         } catch (Exception e) {
             log.error("OAuth2 authentication failed: {}", e.getMessage(), e);
-            String errorUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/login")
+            String errorUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/#/login")
                     .queryParam("error", "oauth2_error")
                     .queryParam("message", e.getMessage())
                     .build().toUriString();
