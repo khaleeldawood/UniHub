@@ -161,7 +161,7 @@ const Leaderboard = () => {
                 {leaderboardData.map((item, index) => {
                   const handleClick = () => {
                     if (type === LEADERBOARD_TYPES.MEMBERS) {
-                      window.location.href = `/profile/${item.userId}`;
+                      window.location.href = `/#/profile/${item.userId}`;
                     }
                   };
                   
