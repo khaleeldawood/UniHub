@@ -19,6 +19,7 @@ const Register = () => {
     universityId: ''
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [emailError, setEmailError] = useState('');
@@ -150,14 +151,16 @@ const Register = () => {
                   Please check your inbox and click the verification link to activate your account.
                 </p>
                 <hr />
+                {success && <p className="text-success mb-2">{success}</p>}
+                {error && <p className="text-danger mb-2">{error}</p>}
                 <p className="mb-0">
                   Didn't receive the email? <Button variant="link" className="p-0 text-decoration-none" style={{verticalAlign: 'baseline'}} onClick={async () => {
                     try {
                       await api.post('/auth/resend-verification', { email: formData.email });
                       setError('');
-                      alert('Verification email sent! Please check your inbox.');
+                      setSuccess('✅ Verification email resent! Please check your inbox.');
                     } catch (err) {
-                      setError('Failed to resend verification email. Please try again.');
+                      setError('❌ Failed to resend verification email. Please try again.');
                     }
                   }}>Resend verification email</Button>
                 </p>

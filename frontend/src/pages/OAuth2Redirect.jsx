@@ -16,9 +16,9 @@ const OAuth2Redirect = () => {
       localStorage.setItem('token', token);
       window.location.href = '/#/dashboard';
     } else if (error) {
-      navigate('/login?error=oauth2_failed');
+      window.location.href = '/#/login?error=oauth2_failed';
     } else {
-      navigate('/login');
+      window.location.href = '/#/login';
     }
   }, [searchParams, navigate, setUser]);
 

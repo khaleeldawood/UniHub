@@ -14,6 +14,7 @@ const Login = () => {
     password: ''
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [showResendVerification, setShowResendVerification] = useState(false);
 
@@ -54,10 +55,11 @@ const Login = () => {
   const handleResendVerification = async () => {
     try {
       await api.post('/auth/resend-verification', { email: formData.email });
-      setError('Verification email sent! Please check your inbox.');
+      setError('');
+      setSuccess('✅ Verification email sent! Please check your inbox.');
       setShowResendVerification(false);
     } catch (err) {
-      setError('Failed to resend verification email. Please try again.');
+      setError('❌ Failed to resend verification email. Please try again.');
     }
   };
 
@@ -70,6 +72,7 @@ const Login = () => {
             <p className="text-muted">Login to your account</p>
           </div>
 
+          {success && <Alert variant="success">{success}</Alert>}
           {error && (
             <Alert variant="danger">
               {error}

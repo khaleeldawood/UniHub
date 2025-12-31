@@ -202,6 +202,7 @@ public class UserService {
         newUser.setName(name);
         newUser.setEmail(email);
         newUser.setPasswordHash("");
+        newUser.setEmailVerified(true); // OAuth users are pre-verified
         newUser.setRole(UserRole.STUDENT);
         newUser.setPoints(0);
         

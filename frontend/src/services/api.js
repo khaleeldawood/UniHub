@@ -45,8 +45,8 @@ api.interceptors.response.use(
           url.includes('/auth/forgot-password') ||
           url.includes('/auth/reset-password');
         
-        if (!isPublicAuthEndpoint && !window.location.pathname.includes('/login')) {
-          window.location.href = '/login?session=expired';
+        if (!isPublicAuthEndpoint && !window.location.hash.includes('/login')) {
+          window.location.href = '/#/login?session=expired';
         }
       }
       
