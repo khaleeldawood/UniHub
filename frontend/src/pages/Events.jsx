@@ -175,7 +175,7 @@ const Events = () => {
       </Row>
 
       {/* Filters - Enhanced */}
-      <Card className="mb-4" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+      <Card className="events-filters mb-4" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
         <Card.Body>
           <h5 className="mb-3">🔍 Filters</h5>
           <Row className="g-3">
@@ -263,7 +263,7 @@ const Events = () => {
         <Row className="g-3">
           {filteredEvents.map(event => (
             <Col xs={12} sm={6} lg={4} key={event.eventId}>
-              <Card className="h-100" style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid var(--border-color)' }}>
+              <Card className="event h-100" style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid var(--border-color)' }}>
                 <Card.Body>
                   <div className="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-1">
                     <Badge bg={getStatusVariant(event.status)} style={{ fontSize: '0.85rem', fontWeight: '600' }}>

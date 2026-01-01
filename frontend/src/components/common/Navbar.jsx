@@ -80,14 +80,14 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/events">Events</Nav.Link>
             <Nav.Link as={Link} to="/blogs">Blogs</Nav.Link>
             <Nav.Link as={Link} to="/leaderboard">Leaderboard</Nav.Link>
-            {isAuthenticated() && <Nav.Link as={Link} to="/badges">🎖️ Badges</Nav.Link>}
+            {isAuthenticated() && <Nav.Link as={Link} to="/badges">Badges</Nav.Link>}
           </Nav>
 
           <Nav>
             {isAuthenticated() ? (
               <>
                 <Nav.Link as={Link} to="/notifications" className="position-relative">
-                  🔔 Notifications
+                  Notifications
                   {unreadCount > 0 && (
                     <Badge bg="danger" pill className="position-absolute top-0 start-100 translate-middle">
                       {unreadCount}

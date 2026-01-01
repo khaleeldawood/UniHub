@@ -101,14 +101,14 @@ const Leaderboard = () => {
               <Form.Label>Scope</Form.Label>
               <ButtonGroup className="w-100">
                 <Button
-                  variant={scope === LEADERBOARD_SCOPES.UNIVERSITY ? 'success' : 'outline-success'}
+                  variant={scope === LEADERBOARD_SCOPES.UNIVERSITY ? 'primary' : 'outline-primary'}
                   onClick={() => setScope(LEADERBOARD_SCOPES.UNIVERSITY)}
                   disabled={!user}
                 >
                   🏫 My University
                 </Button>
                 <Button
-                  variant={scope === LEADERBOARD_SCOPES.GLOBAL ? 'success' : 'outline-success'}
+                  variant={scope === LEADERBOARD_SCOPES.GLOBAL ? 'primary' : 'outline-primary'}
                   onClick={() => setScope(LEADERBOARD_SCOPES.GLOBAL)}
                 >
                   🌍 Global

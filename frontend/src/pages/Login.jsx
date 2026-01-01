@@ -111,9 +111,9 @@ const Login = () => {
               />
             </Form.Group>
 
-            <Button 
-              variant="primary" 
-              type="submit" 
+            <Button
+              variant="primary"
+              type="submit"
               className="w-100 mb-3"
               disabled={loading}
               style={{ padding: '0.875rem', fontSize: '1.125rem', fontWeight: '600' }}
@@ -128,9 +128,9 @@ const Login = () => {
               <span className="px-3 text-muted">or</span>
               <hr className="flex-grow-1" />
             </div>
-            
+
             <div className="d-grid gap-2">
-              <Button 
+              <Button
                 variant="outline-danger"
                 onClick={() => window.location.href = `${API_BASE_URL.replace('/api', '')}/oauth2/authorization/google`}
                 className="d-flex align-items-center justify-content-center"
@@ -144,8 +144,8 @@ const Login = () => {
                 </svg>
                 Continue with Google
               </Button>
-              
-              <Button 
+
+              <Button
                 variant="outline-dark"
                 onClick={() => window.location.href = `${API_BASE_URL.replace('/api', '')}/oauth2/authorization/github`}
                 className="d-flex align-items-center justify-content-center"

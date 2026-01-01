@@ -111,7 +111,7 @@ const Blogs = () => {
       </Row>
 
       {/* Filters */}
-      <Card className="mb-4" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+      <Card className="blogs-filters mb-4" style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
         <Card.Body>
           <h5 className="mb-3">🔍 Filters</h5>
           <Row className="g-3">
@@ -166,7 +166,7 @@ const Blogs = () => {
         <Row className="g-3">
           {filteredBlogs.map(blog => (
             <Col xs={12} sm={6} lg={4} key={blog.blogId}>
-              <Card className="h-100" style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid var(--border-color)', minHeight: '320px' }}>
+              <Card className="blogs h-100" style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid var(--border-color)', minHeight: '320px' }}>
                 <Card.Body>
                   <div className="mb-2 d-flex flex-wrap gap-1">
                     <Badge bg="info">{blog.category}</Badge>

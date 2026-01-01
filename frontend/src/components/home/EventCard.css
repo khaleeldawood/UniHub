@@ -15,6 +15,10 @@
     background: rgba(255, 255, 255, 0.95);
 }
 
+[data-theme="dark"] .event-card {
+    color : #fff;
+}
+
 .event-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 12px 28px rgba(99, 102, 241, 0.2);

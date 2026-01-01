@@ -158,7 +158,7 @@ const Dashboard = () => {
       </Row>
 
       {/* Stats Cards */}
-      <Row className="g-3 mb-4">
+      <Row className="point g-3 mb-4">
         <Col xs={6} md={3}>
           <Card className="h-100 text-center">
             <Card.Body>
@@ -214,7 +214,7 @@ const Dashboard = () => {
                 boxShadow: '0 4px 12px rgba(255, 193, 7, 0.3)',
                 background: 'linear-gradient(135deg, #ffffff 0%, #fff9e6 100%)'
               }}>
-                <Card.Body>
+                <Card.Body className="pendingEvent">
                   <h5 style={{ fontWeight: '700', marginBottom: '1rem' }}>⏳ Pending Event Approvals</h5>
                   <h2 style={{ fontSize: '3rem', fontWeight: '700', color: 'var(--warning-color)', marginBottom: '1rem' }}>
                     {pendingApprovals.events}
@@ -236,7 +236,7 @@ const Dashboard = () => {
                 boxShadow: '0 4px 12px rgba(255, 193, 7, 0.3)',
                 background: 'linear-gradient(135deg, #ffffff 0%, #fff9e6 100%)'
               }}>
-                <Card.Body>
+                <Card.Body className="pendingBlog">
                   <h5 style={{ fontWeight: '700', marginBottom: '1rem' }}>⏳ Pending Blog Approvals</h5>
                   <h2 style={{ fontSize: '3rem', fontWeight: '700', color: 'var(--warning-color)', marginBottom: '1rem' }}>
                     {pendingApprovals.blogs}
