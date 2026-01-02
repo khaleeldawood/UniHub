@@ -25,10 +25,7 @@ const OAuth2Redirect = () => {
       }
 
       try {
-        // Store token in localStorage
         localStorage.setItem('token', token);
-        
-        // Fetch user data
         const userData = await authService.checkSession();
         setUser(userData);
         navigate('/dashboard', { replace: true });

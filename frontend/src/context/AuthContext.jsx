@@ -9,12 +9,25 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Skip session check if on OAuth2 redirect page
+    if (window.location.hash.includes('/oauth2/redirect')) {
+      setLoading(false);
+      return;
+    }
+    
     // Check session on mount
     checkSession();
   }, []);
 
   const checkSession = async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      
       const userData = await authService.checkSession();
       setUser(userData);
       
@@ -25,6 +38,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       // Session invalid or expired
       setUser(null);
+      localStorage.removeItem('token');
     } finally {
       setLoading(false);
     }

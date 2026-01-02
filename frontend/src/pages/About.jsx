@@ -122,7 +122,7 @@ const About = () => {
             data-section="mission"
           >
             <Card.Body className="p-4">
-              <h3 className="mb-3">Our Mission</h3>
+              <h3 className="mb-3" style={{ color: 'var(--text-secondary)' }}>Our Mission</h3>
               <p style={{ color: 'var(--text-secondary)' }}>
                 UniHub is designed to create a centralized platform for university communities to connect, 
                 collaborate, and engage through events, blogs, and gamification features. We aim to enhance 
