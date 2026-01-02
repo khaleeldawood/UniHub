@@ -18,6 +18,8 @@ const BlogDetails = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportingBlog, setReportingBlog] = useState(false);
+  const [hasReported, setHasReported] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     loadBlogDetails();
@@ -27,6 +29,18 @@ const BlogDetails = () => {
     try {
       const blogData = await blogService.getBlogById(id);
       setBlog(blogData);
+      
+      // Check if user has already reported
+      if (user) {
+        try {
+          const reports = await reportService.getBlogReports({ blogId: id });
+          const userReport = reports.find(r => r.reportedBy?.userId === user.userId || r.reportedBy?.email === user.email);
+          setHasReported(!!userReport);
+        } catch (err) {
+          // Silently fail - user can still try to report
+          setHasReported(false);
+        }
+      }
     } catch (err) {
       console.error('Failed to load blog details:', err);
       setError('Failed to load blog details');
@@ -47,21 +61,24 @@ const BlogDetails = () => {
       setSuccess('Blog reported successfully. Our team will review it.');
       setShowReportModal(false);
       setReportReason('');
+      setHasReported(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to report blog');
+      if (err.response?.status === 409) {
+        setError('You have already reported this blog.');
+        setHasReported(true);
+      } else {
+        setError(err.response?.data?.message || 'Failed to report blog');
+      }
     } finally {
       setReportingBlog(false);
     }
   };
 
   const handleAdminDelete = async () => {
-    if (!window.confirm('⚠️ Admin Action: Are you sure you want to delete this blog?')) {
-      return;
-    }
-    
     try {
       await blogService.deleteBlog(id);
       setSuccess('Blog deleted successfully');
+      setShowDeleteModal(false);
       setTimeout(() => navigate('/blogs'), 1500);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete blog');
@@ -98,7 +115,28 @@ const BlogDetails = () => {
         </Button>
       </div>
 
-      <Card className="mb-4">
+      <Card className="mb-4" style={{ position: 'relative', overflow: 'hidden' }}>
+        {blog.reportCount > 0 && (
+          <div style={{
+            position: 'absolute',
+            bottom: '5px',
+            right: '5px',
+            width: '28px',
+            height: '28px',
+            backgroundColor: '#dc3545',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '0.875rem',
+            fontWeight: '700',
+            zIndex: 10,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+          }}>
+            {blog.reportCount}
+          </div>
+        )}
         <Card.Header>
           <div className="d-flex justify-content-between align-items-start">
             <div>
@@ -113,69 +151,62 @@ const BlogDetails = () => {
         </Card.Header>
         <Card.Body>
           <div className="mb-3">
-            <strong>✍️ Author:</strong> {blog.author?.name}
+            <strong>Author:</strong> <span style={{ color: 'var(--text-primary)' }}>{blog.author?.name}</span>
             {blog.author?.university && (
               <span className="text-muted"> • {blog.author.university.name}</span>
             )}
           </div>
           <div className="mb-3">
-            <strong>📅 Published:</strong> {formatDate(blog.createdAt)}
+            <strong>Published:</strong> <span style={{ color: 'var(--text-primary)' }}>{formatDate(blog.createdAt)}</span>
           </div>
           {blog.lastModifiedAt && (
             <div className="mb-3">
-              <strong>🔄 Last Updated:</strong> {formatDate(blog.lastModifiedAt)}
+              <strong>Last Updated:</strong> <span style={{ color: 'var(--text-primary)' }}>{formatDate(blog.lastModifiedAt)}</span>
             </div>
           )}
-          <hr />
-          <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8' }}>
+          <hr style={{ borderColor: 'var(--border-color)', opacity: 1 }} />
+          <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', color: 'var(--text-primary)' }}>
             {blog.content}
           </div>
         </Card.Body>
       </Card>
 
-      {/* Action Buttons */}
-      <div className="d-flex gap-2 flex-wrap mb-4">
-        {/* Edit button for author */}
-        {user && blog.author?.userId === user.userId && (
-          <Button 
-            as={Link} 
-            to={`/blogs/${blog.blogId}/edit`}
-            variant="warning"
-          >
-            ✏️ Edit Blog
-          </Button>
-        )}
+{/* Report Section */}
+      {canReportBlog && (
+        <Card className="mb-3">
+          <Card.Body>
+            <h5>Report This Blog</h5>
+            <p className="text-muted small">If you find this blog inappropriate or violates community guidelines</p>
+            <Button variant="warning" size="sm" onClick={() => setShowReportModal(true)} disabled={hasReported}>
+              {hasReported ? 'Already Reported' : 'Report Blog'}
+            </Button>
+          </Card.Body>
+        </Card>
+      )}
 
-        {/* Report button */}
-        {canReportBlog && (
-          <Button 
-            variant="outline-danger"
-            onClick={() => setShowReportModal(true)}
-          >
-            🚨 Report Blog
-          </Button>
-        )}
-
-        {/* Admin delete */}
-        {user && user.role === USER_ROLES.ADMIN && (
-          <Button 
-            variant="danger"
-            onClick={handleAdminDelete}
-          >
-            🗑️ Delete (Admin)
-          </Button>
-        )}
-      </div>
+      {/* Admin Actions */}
+      {user && user.role === USER_ROLES.ADMIN && (
+        <Card>
+          <Card.Body>
+            <h5>Admin Actions</h5>
+            <div className="d-flex gap-2 flex-wrap">
+              <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
+                Delete Blog
+              </Button>
+            </div>
+          </Card.Body>
+        </Card>
+      )}
 
       {/* Report Modal */}
       <Modal show={showReportModal} onHide={() => setShowReportModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Report Blog</Modal.Title>
+        <Modal.Header closeButton style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+          <Modal.Title style={{ color: 'var(--text-primary)' }}>Report Blog</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <p className="text-muted">You are reporting: <strong>{blog.title}</strong></p>
+        <Modal.Body style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+          <p className="text-muted">You are reporting: <strong style={{ color: 'var(--text-primary)' }}>{blog.title}</strong></p>
           <Form.Group>
-            <Form.Label>Reason for reporting</Form.Label>
+            <Form.Label style={{ color: 'var(--text-primary)' }}>Reason for reporting</Form.Label>
             <Form.Control
               as="textarea"
               rows={4}
@@ -185,7 +216,7 @@ const BlogDetails = () => {
             />
           </Form.Group>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           <Button variant="secondary" onClick={() => setShowReportModal(false)}>
             Cancel
           </Button>
@@ -195,6 +226,24 @@ const BlogDetails = () => {
             disabled={reportingBlog}
           >
             {reportingBlog ? 'Reporting...' : 'Submit Report'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+          <Modal.Title style={{ color: 'var(--text-primary)' }}>Delete Blog</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+          <p>Are you sure you want to delete this blog? This action cannot be undone.</p>
+        </Modal.Body>
+        <Modal.Footer style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleAdminDelete}>
+            Delete Blog
           </Button>
         </Modal.Footer>
       </Modal>

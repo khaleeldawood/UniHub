@@ -82,7 +82,7 @@ const EventRequests = () => {
       <Row className="mb-4">
         <Col>
           <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '1rem' }}>
-            📋 Event Join Requests
+            Event Join Requests
           </h2>
           <p className="text-muted">
             Manage requests from users who want to join your events
@@ -160,15 +160,15 @@ const EventRequests = () => {
                       onClick={() => handleAccept(request.requestId)}
                       style={{ flex: 1, fontWeight: '600' }}
                     >
-                      ✅ Accept
+                      Accept
                     </Button>
                     <Button
-                      variant="danger"
+                      variant="secondary"
                       size="sm"
                       onClick={() => handleReject(request.requestId)}
                       style={{ flex: 1, fontWeight: '600' }}
                     >
-                      ❌ Reject
+                      Reject
                     </Button>
                   </div>
                 </Card.Body>

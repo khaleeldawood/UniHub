@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Table, Button, Modal, Form, Alert } from 'react-bootstrap';
 import adminService from '../services/adminService';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 
 const AdminUniversities = () => {
   const [universities, setUniversities] = useState([]);
@@ -11,6 +12,8 @@ const AdminUniversities = () => {
   const [editForm, setEditForm] = useState({ name: '', description: '', logoUrl: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [universityToDelete, setUniversityToDelete] = useState(null);
 
   useEffect(() => {
     loadUniversities();
@@ -59,17 +62,16 @@ const AdminUniversities = () => {
     }
   };
 
-  const handleDeleteUniversity = async (uniId, uniName) => {
-    if (!window.confirm(`⚠️ Are you sure you want to delete university: ${uniName}? This action cannot be undone.`)) {
-      return;
-    }
-    
+  const handleDeleteUniversity = async () => {
     try {
-      await adminService.deleteUniversity(uniId);
+      await adminService.deleteUniversity(universityToDelete.universityId);
       setSuccess('University deleted successfully');
+      setShowDeleteModal(false);
+      setUniversityToDelete(null);
       loadUniversities();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete university');
+      setShowDeleteModal(false);
     }
   };
 
@@ -80,8 +82,8 @@ const AdminUniversities = () => {
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>🏫 University Management</h2>
-        <Button variant="primary" onClick={() => { setEditForm({ name: '', description: '', logoUrl: '' }); setShowAddModal(true); }}>
-          ➕ Add University
+        <Button variant="outline-primary" onClick={() => { setEditForm({ name: '', description: '', logoUrl: '' }); setShowAddModal(true); }}>
+          Add University
         </Button>
       </div>
 
@@ -110,14 +112,14 @@ const AdminUniversities = () => {
                           variant="outline-primary"
                           onClick={() => handleEditUniversity(uni)}
                         >
-                          ✏️ Edit
+                          Edit
                         </Button>
                         <Button 
                           size="sm" 
                           variant="outline-danger"
-                          onClick={() => handleDeleteUniversity(uni.universityId, uni.name)}
+                          onClick={() => { setUniversityToDelete(uni); setShowDeleteModal(true); }}
                         >
-                          🗑️ Delete
+                          Delete
                         </Button>
                       </div>
                     </td>
@@ -131,10 +133,10 @@ const AdminUniversities = () => {
 
       {/* Edit University Modal */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit University</Modal.Title>
+        <Modal.Header closeButton style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+          <Modal.Title style={{ color: 'var(--text-primary)' }}>Edit University</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
           <Form.Group className="mb-3">
             <Form.Label>University Name</Form.Label>
             <Form.Control
@@ -166,7 +168,7 @@ const AdminUniversities = () => {
             </Form.Text>
           </Form.Group>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           <Button variant="secondary" onClick={() => setShowEditModal(false)}>
             Cancel
           </Button>
@@ -178,10 +180,10 @@ const AdminUniversities = () => {
 
       {/* Add University Modal */}
       <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Add New University</Modal.Title>
+        <Modal.Header closeButton style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+          <Modal.Title style={{ color: 'var(--text-primary)' }}>Add New University</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
           <Form.Group className="mb-3">
             <Form.Label>University Name</Form.Label>
             <Form.Control
@@ -215,7 +217,7 @@ const AdminUniversities = () => {
             </Form.Text>
           </Form.Group>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           <Button variant="secondary" onClick={() => setShowAddModal(false)}>
             Cancel
           </Button>
@@ -224,6 +226,17 @@ const AdminUniversities = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <ConfirmationModal
+        show={showDeleteModal}
+        onHide={() => { setShowDeleteModal(false); setUniversityToDelete(null); }}
+        onConfirm={handleDeleteUniversity}
+        title="Delete University"
+        message="Are you sure you want to delete this university? This action cannot be undone."
+        itemName={universityToDelete?.name}
+        confirmText="Delete"
+        confirmVariant="danger"
+      />
     </Container>
   );
 };

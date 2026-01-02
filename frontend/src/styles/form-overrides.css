@@ -223,6 +223,16 @@ textarea.form-control {
   background-color : var(--bg-primary-subtle)
 }
 
+[data-theme="dark"] .table td small,
+[data-theme="dark"] .table td .small {
+  color: #f8fafc !important;
+}
+
+[data-theme="light"] .table td small,
+[data-theme="light"] .table td .small {
+  color: #0f172a !important;
+}
+
 [data-theme="dark"] .table-hover tbody tr:hover {
   background-color: var(--bg-tertiary) !important;
 }
@@ -257,11 +267,6 @@ textarea.form-control {
 /* Warning alert dark mode */
 [data-theme="dark"] .alert-warning strong {
   color: var(--bs-warning-text-emphasis) !important;
-}
-
-/* Admin cancel button full width */
-.btn-warning[title*="Cancel event (Admin)"] {
-  width: 100% !important;
 }
 
 [data-theme="dark"] .btn-link:hover {

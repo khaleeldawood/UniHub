@@ -59,7 +59,7 @@ const BlogApprovals = () => {
       <Alert variant="warning" style={{ fontWeight: '500', border: '2px solid #ffc107', boxShadow: '0 2px 8px rgba(255, 193, 7, 0.2)' }}>
         <strong>👨‍🏫 {user.role === USER_ROLES.ADMIN ? 'Admin' : 'Supervisor'} View:</strong> Review and approve/reject pending blogs and opportunities from your university.
       </Alert>
-      <h2 className="mb-4" style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>⏳ Blog Approvals</h2>
+      <h2 className="mb-4" style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>Blog Approvals</h2>
       <Card style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', border: 'none', borderRadius: '1rem' }}>
         <Card.Body>
           {loading ? (
@@ -92,16 +92,16 @@ const BlogApprovals = () => {
                           disabled={processingId === blog.blogId}
                           style={{ fontWeight: '600', minWidth: '90px' }}
                         >
-                          {processingId === blog.blogId ? '⏳ Processing...' : '✅ Approve'}
+                          {processingId === blog.blogId ? 'Processing...' : 'Approve'}
                         </Button>
                         <Button 
                           size="sm" 
-                          variant="danger" 
+                          variant="secondary" 
                           onClick={() => handleReject(blog.blogId)}
                           disabled={processingId === blog.blogId}
                           style={{ fontWeight: '600', minWidth: '90px' }}
                         >
-                          {processingId === blog.blogId ? '⏳ Processing...' : '❌ Reject'}
+                          {processingId === blog.blogId ? 'Processing...' : 'Reject'}
                         </Button>
                       </div>
                     </td>

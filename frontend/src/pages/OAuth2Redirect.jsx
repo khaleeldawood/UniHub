@@ -14,11 +14,11 @@ const OAuth2Redirect = () => {
 
     if (token) {
       localStorage.setItem('token', token);
-      window.location.href = '/#/dashboard';
+      navigate('/dashboard', { replace: true });
     } else if (error) {
-      window.location.href = '/#/login?error=oauth2_failed';
+      navigate('/login?error=oauth2_failed', { replace: true });
     } else {
-      window.location.href = '/#/login';
+      navigate('/login', { replace: true });
     }
   }, [searchParams, navigate, setUser]);
 

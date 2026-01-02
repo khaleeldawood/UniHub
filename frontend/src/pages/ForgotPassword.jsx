@@ -76,7 +76,7 @@ const ForgotPassword = () => {
               disabled={loading}
               style={{ padding: '0.875rem', fontSize: '1.125rem', fontWeight: '600' }}
             >
-              {loading ? '⏳ Sending...' : '📧 Send Reset Link'}
+              {loading ? 'Sending...' : 'Send Reset Link'}
             </Button>
           </Form>
 

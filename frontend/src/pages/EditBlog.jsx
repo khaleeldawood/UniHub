@@ -169,7 +169,7 @@ const EditBlog = () => {
                 variant="primary" 
                 disabled={saving}
               >
-                {saving ? 'Saving...' : '💾 Save Changes'}
+                {saving ? 'Saving...' : 'Save Changes'}
               </Button>
               <Button 
                 type="button" 

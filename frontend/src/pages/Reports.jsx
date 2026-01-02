@@ -84,7 +84,7 @@ const Reports = () => {
 
       <Row className="mb-4">
         <Col>
-          <h2>🚨 Content Reports</h2>
+          <h2>Content Reports</h2>
           <p className="text-muted">Manage reported events and blogs</p>
         </Col>
       </Row>
@@ -100,8 +100,8 @@ const Reports = () => {
                 onChange={(e) => setFilter(e.target.value)}
               >
                 <option value="ALL">All Reports</option>
-                <option value="EVENT">📅 Event Reports</option>
-                <option value="BLOG">📝 Blog Reports</option>
+                <option value="EVENT">Event Reports</option>
+                <option value="BLOG">Blog Reports</option>
               </Form.Select>
             </Col>
             <Col md={4}>
@@ -111,9 +111,9 @@ const Reports = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <option value="ALL">All Statuses</option>
-                <option value="PENDING">⏳ Pending</option>
-                <option value="REVIEWED">✅ Resolved</option>
-                <option value="DISMISSED">🚫 Dismissed</option>
+                <option value="PENDING">Pending</option>
+                <option value="REVIEWED">Resolved</option>
+                <option value="DISMISSED">Dismissed</option>
               </Form.Select>
             </Col>
           </Row>
@@ -130,10 +130,10 @@ const Reports = () => {
           {filteredEventReports.length > 0 && (
             <Card className="mb-4">
               <Card.Header>
-                <h5 className="mb-0">📅 Event Reports ({filteredEventReports.length})</h5>
+                <h5 className="mb-0">Event Reports ({filteredEventReports.length})</h5>
               </Card.Header>
-              <Card.Body className="p-0">
-                <Table responsive hover className="mb-0">
+              <Card.Body>
+                <Table responsive hover className="mb-0 text-center">
                   <thead>
                     <tr>
                       <th>Event</th>
@@ -156,11 +156,11 @@ const Reports = () => {
                       <tr key={report.reportId}>
                         <td>
                           {eventId ? (
-                            <Link to={`/events/${eventId}`} style={{ fontWeight: '600' }}>
+                            <Link to={`/events/${eventId}`}>
                               {eventTitle}
                             </Link>
                           ) : (
-                            <span style={{ fontWeight: '600' }}>{eventTitle}</span>
+                            <span>{eventTitle}</span>
                           )}
                           <div className="text-muted small">by {eventCreatorName}</div>
                         </td>
@@ -189,14 +189,14 @@ const Reports = () => {
                                 variant="success"
                                 onClick={() => handleResolveReport(report.reportId, 'event')}
                               >
-                                ✅ Resolve
+                                Resolve
                               </Button>
                               <Button
                                 size="sm"
                                 variant="secondary"
                                 onClick={() => handleDismissReport(report.reportId, 'event')}
                               >
-                                🚫 Dismiss
+                                Dismiss
                               </Button>
                             </div>
                           )}
@@ -214,10 +214,10 @@ const Reports = () => {
           {filteredBlogReports.length > 0 && (
             <Card className="mb-4">
               <Card.Header>
-                <h5 className="mb-0">📝 Blog Reports ({filteredBlogReports.length})</h5>
+                <h5 className="mb-0">Blog Reports ({filteredBlogReports.length})</h5>
               </Card.Header>
-              <Card.Body className="p-0">
-                <Table responsive hover className="mb-0">
+              <Card.Body>
+                <Table responsive hover className="mb-0 text-center">
                   <thead>
                     <tr>
                       <th>Blog</th>
@@ -240,11 +240,11 @@ const Reports = () => {
                       <tr key={report.reportId}>
                         <td>
                           {blogId ? (
-                            <Link to={`/blogs/${blogId}`} style={{ fontWeight: '600' }}>
+                            <Link to={`/blogs/${blogId}`}>
                               {blogTitle}
                             </Link>
                           ) : (
-                            <span style={{ fontWeight: '600' }}>{blogTitle}</span>
+                            <span>{blogTitle}</span>
                           )}
                           <div className="text-muted small">by {blogAuthorName}</div>
                         </td>
@@ -273,14 +273,14 @@ const Reports = () => {
                                 variant="success"
                                 onClick={() => handleResolveReport(report.reportId, 'blog')}
                               >
-                                ✅ Resolve
+                                Resolve
                               </Button>
                               <Button
                                 size="sm"
                                 variant="secondary"
                                 onClick={() => handleDismissReport(report.reportId, 'blog')}
                               >
-                                🚫 Dismiss
+                                Dismiss
                               </Button>
                             </div>
                           )}

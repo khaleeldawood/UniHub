@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Card, Row, Col, Badge, ListGroup, Button } from 'react-bootstrap';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useWebSocket } from '../hooks/useWebSocket';
 import userService from '../services/userService';
 import eventService from '../services/eventService';
@@ -12,6 +13,7 @@ import { formatDate, formatPoints, getBadgeColor, getStatusVariant } from '../ut
 const Profile = () => {
   const { id } = useParams();
   const { user: currentUser } = useAuth();
+  const { theme } = useTheme();
   const { leaderboardUpdated } = useWebSocket();
   const [user, setUser] = useState(null);
   const [badges, setBadges] = useState([]);
@@ -168,20 +170,20 @@ const Profile = () => {
           <Col md={6}>
             <Card>
               <Card.Header>
-                <h5 className="mb-0">📊 Stats</h5>
+                <h5 className="mb-0">Status</h5>
               </Card.Header>
               <Card.Body>
                 <div className="d-flex justify-content-around text-center">
                   <div>
-                    <h3>{events.length}</h3>
+                    <h3 id="profile-events-count">{events.length}</h3>
                     <p className="text-muted mb-0 small">Events</p>
                   </div>
                   <div>
-                    <h3>{blogs.length}</h3>
+                    <h3 id="profile-blogs-count">{blogs.length}</h3>
                     <p className="text-muted mb-0 small">Blogs</p>
                   </div>
                   <div>
-                    <h3>{badges.length}</h3>
+                    <h3 id="profile-badges-count">{badges.length}</h3>
                     <p className="text-muted mb-0 small">Badges</p>
                   </div>
                 </div>

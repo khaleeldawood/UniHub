@@ -195,7 +195,7 @@ const ResetPassword = () => {
               disabled={loading}
               style={{ padding: '0.875rem', fontSize: '1.125rem', fontWeight: '600' }}
             >
-              {loading ? '⏳ Resetting...' : '🔒 Reset Password'}
+              {loading ? 'Resetting...' : 'Reset Password'}
             </Button>
           </Form>
         </Card.Body>

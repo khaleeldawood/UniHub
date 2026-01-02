@@ -16,6 +16,7 @@ const EditEvent = () => {
     startDate: '',
     endDate: '',
     type: 'Workshop',
+    universityId: '',
     maxOrganizers: '',
     maxVolunteers: '',
     maxAttendees: '',
@@ -74,6 +75,7 @@ const EditEvent = () => {
         startDate: formatDateForInput(event.startDate),
         endDate: formatDateForInput(event.endDate),
         type: event.type || 'Workshop',
+        universityId: event.university?.universityId || '',
         maxOrganizers: event.maxOrganizers || '',
         maxVolunteers: event.maxVolunteers || '',
         maxAttendees: event.maxAttendees || '',
@@ -117,6 +119,7 @@ const EditEvent = () => {
       // Prepare data
       const eventData = {
         ...formData,
+        universityId: formData.universityId ? parseInt(formData.universityId) : null,
         maxOrganizers: formData.maxOrganizers ? parseInt(formData.maxOrganizers) : null,
         maxVolunteers: formData.maxVolunteers ? parseInt(formData.maxVolunteers) : null,
         maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : null,
@@ -197,20 +200,38 @@ const EditEvent = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Location (University) *</Form.Label>
+              <Form.Label>University *</Form.Label>
               <Form.Select
-                name="location"
-                value={formData.location}
+                name="universityId"
+                value={formData.universityId}
                 onChange={handleChange}
                 required
               >
                 <option value="">Select a university...</option>
                 {universities.map(uni => (
-                  <option key={uni.universityId} value={uni.name}>
+                  <option key={uni.universityId} value={uni.universityId}>
                     {uni.name}
                   </option>
                 ))}
               </Form.Select>
+              <Form.Text className="text-muted">
+                Select the university where this event will take place
+              </Form.Text>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Location (Venue) *</Form.Label>
+              <Form.Control
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                required
+                placeholder="e.g., Main Auditorium, Building A"
+              />
+              <Form.Text className="text-muted">
+                Specific venue or building at the selected university
+              </Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -237,6 +258,7 @@ const EditEvent = () => {
                 value={formData.startDate}
                 onChange={handleChange}
                 required
+                style={{ colorScheme: 'light dark' }}
               />
             </Form.Group>
 
@@ -248,6 +270,7 @@ const EditEvent = () => {
                 value={formData.endDate}
                 onChange={handleChange}
                 required
+                style={{ colorScheme: 'light dark' }}
               />
             </Form.Group>
 
@@ -301,7 +324,7 @@ const EditEvent = () => {
                 variant="primary" 
                 disabled={saving}
               >
-                {saving ? 'Saving...' : '💾 Save Changes'}
+                {saving ? 'Saving...' : 'Save Changes'}
               </Button>
               <Button 
                 type="button" 

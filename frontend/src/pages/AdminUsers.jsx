@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Card, Table, Button, Badge, Modal, Form, Alert } from 'react-bootstrap';
 import adminService from '../services/adminService';
 import { USER_ROLES } from '../utils/constants';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -19,6 +20,8 @@ const AdminUsers = () => {
   const [universities, setUniversities] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
     loadUsers();
@@ -65,17 +68,16 @@ const AdminUsers = () => {
     }
   };
 
-  const handleDeleteUser = async (userId, userName) => {
-    if (!window.confirm(`⚠️ Are you sure you want to delete user: ${userName}? This action cannot be undone.`)) {
-      return;
-    }
-    
+  const handleDeleteUser = async () => {
     try {
-      await adminService.deleteUser(userId);
+      await adminService.deleteUser(userToDelete.userId);
       setSuccess('User deleted successfully');
+      setShowDeleteModal(false);
+      setUserToDelete(null);
       loadUsers();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete user');
+      setShowDeleteModal(false);
     }
   };
 
@@ -103,7 +105,7 @@ const AdminUsers = () => {
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>👥 User Management</h2>
-        <Button variant="primary" onClick={() => setShowAddModal(true)}>
+        <Button variant="outline-primary" onClick={() => setShowAddModal(true)}>
           Add Supervisor
         </Button>
       </div>
@@ -145,14 +147,14 @@ const AdminUsers = () => {
                           variant="outline-primary"
                           onClick={() => handleEditUser(user)}
                         >
-                          ✏️ Edit
+                          Edit
                         </Button>
                         <Button 
                           size="sm" 
                           variant="outline-danger"
-                          onClick={() => handleDeleteUser(user.userId, user.name)}
+                          onClick={() => { setUserToDelete(user); setShowDeleteModal(true); }}
                         >
-                          🗑️ Delete
+                          Delete
                         </Button>
                       </div>
                     </td>
@@ -166,10 +168,10 @@ const AdminUsers = () => {
 
       {/* Add Supervisor Modal */}
       <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Add Supervisor</Modal.Title>
+        <Modal.Header closeButton style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+          <Modal.Title style={{ color: 'var(--text-primary)' }}>Add Supervisor</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
           <Form.Group className="mb-3">
             <Form.Label>Full Name</Form.Label>
             <Form.Control
@@ -212,7 +214,7 @@ const AdminUsers = () => {
             </Form.Select>
           </Form.Group>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           <Button variant="secondary" onClick={() => setShowAddModal(false)}>
             Cancel
           </Button>
@@ -224,10 +226,10 @@ const AdminUsers = () => {
 
       {/* Edit User Modal */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit User: {selectedUser?.name}</Modal.Title>
+        <Modal.Header closeButton style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+          <Modal.Title style={{ color: 'var(--text-primary)' }}>Edit User: {selectedUser?.name}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
           <Form.Group className="mb-3">
             <Form.Label>Role</Form.Label>
             <Form.Select
@@ -249,7 +251,7 @@ const AdminUsers = () => {
             />
           </Form.Group>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           <Button variant="secondary" onClick={() => setShowEditModal(false)}>
             Cancel
           </Button>
@@ -258,6 +260,17 @@ const AdminUsers = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <ConfirmationModal
+        show={showDeleteModal}
+        onHide={() => { setShowDeleteModal(false); setUserToDelete(null); }}
+        onConfirm={handleDeleteUser}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        itemName={userToDelete?.name}
+        confirmText="Delete"
+        confirmVariant="danger"
+      />
     </Container>
   );
 };

@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const userData = await authService.login(email, password);
+      console.log('Login successful, user data:', userData);
       setUser(userData);
       
       // Connect to WebSocket
@@ -42,6 +43,7 @@ export const AuthProvider = ({ children }) => {
       
       return userData;
     } catch (error) {
+      console.error('Login failed:', error);
       throw error;
     }
   };

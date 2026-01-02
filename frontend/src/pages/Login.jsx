@@ -118,7 +118,7 @@ const Login = () => {
               disabled={loading}
               style={{ padding: '0.875rem', fontSize: '1.125rem', fontWeight: '600' }}
             >
-              {loading ? '⏳ Logging in...' : '🚀 Login'}
+              {loading ? 'Logging in...' : 'Login'}
             </Button>
           </Form>
 

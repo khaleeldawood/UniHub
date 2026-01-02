@@ -112,26 +112,29 @@ const Navbar = () => {
                   <NavDropdown.Item as={Link} to="/dashboard">
                     Dashboard
                   </NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to={`/profile/${user.userId}`}>
+                    Profile
+                  </NavDropdown.Item>
+                  
+                  <NavDropdown.Divider />
                   <NavDropdown.Item as={Link} to="/my-events">
                     My Events
                   </NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/my-blogs">
                     My Blogs
                   </NavDropdown.Item>
+                  
                   <NavDropdown.Divider />
-                  <NavDropdown.Item as={Link} to={`/profile/${user.userId}`}>
-                    Profile
+                  <NavDropdown.Item as={Link} to="/participation-requests">
+                    My Participation Requests
                   </NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/settings">
-                    Settings
+                  <NavDropdown.Item as={Link} to="/my-event-requests">
+                    Event Participation Requests
                   </NavDropdown.Item>
 
                   {(user.role === USER_ROLES.SUPERVISOR || user.role === USER_ROLES.ADMIN) && (
                     <>
                       <NavDropdown.Divider />
-                      <NavDropdown.Item as={Link} to="/event-requests">
-                        Event Requests
-                      </NavDropdown.Item>
                       <NavDropdown.Item as={Link} to="/events/approvals">
                         Event Approvals
                       </NavDropdown.Item>
@@ -160,6 +163,9 @@ const Navbar = () => {
                   )}
 
                   <NavDropdown.Divider />
+                  <NavDropdown.Item as={Link} to="/settings">
+                    Settings
+                  </NavDropdown.Item>
                   <NavDropdown.Item onClick={handleLogout}>
                     Logout
                   </NavDropdown.Item>

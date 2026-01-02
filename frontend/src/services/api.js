@@ -14,10 +14,7 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // Token is handled via httpOnly cookies, no need to add Authorization header
     return config;
   },
   (error) => {
@@ -33,7 +30,6 @@ api.interceptors.response.use(
   (error) => {
     if (error.response) {
       // Handle 401 Unauthorized - redirect to login
-      // BUT: Don't redirect for public auth endpoints
       if (error.response.status === 401) {
         const url = error.config?.url || '';
         const isPublicAuthEndpoint = 
@@ -43,10 +39,11 @@ api.interceptors.response.use(
           url.includes('/auth/verify-email') ||
           url.includes('/auth/resend-verification') ||
           url.includes('/auth/forgot-password') ||
-          url.includes('/auth/reset-password');
+          url.includes('/auth/reset-password') ||
+          url.includes('/auth/validate-reset-token');
         
         if (!isPublicAuthEndpoint && !window.location.hash.includes('/login')) {
-          window.location.href = '/#/login?session=expired';
+          window.location.href = '/#/login';
         }
       }
       

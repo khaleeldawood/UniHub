@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Container, Card, Table, Badge, Button } from 'react-bootstrap';
 import eventService from '../services/eventService';
 import { formatDate, getStatusVariant } from '../utils/helpers';
 import { useAuth } from '../context/AuthContext';
 import { USER_ROLES } from '../utils/constants';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 
 const MyEvents = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     loadMyEvents();
@@ -27,29 +33,31 @@ const MyEvents = () => {
     }
   };
 
-  const handleDelete = async (eventId) => {
-    if (!window.confirm('Are you sure you want to delete this event?')) {
-      return;
-    }
-    
+  const handleDelete = async () => {
+    setIsProcessing(true);
     try {
-      await eventService.deleteEvent(eventId);
-      setEvents(events.filter(e => e.eventId !== eventId));
+      await eventService.deleteEvent(selectedEvent.eventId);
+      setEvents(events.filter(e => e.eventId !== selectedEvent.eventId));
+      setShowDeleteModal(false);
+      setSelectedEvent(null);
     } catch (error) {
       alert('Failed to delete event: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleCancel = async (eventId) => {
-    if (!window.confirm('Are you sure you want to cancel this event?')) {
-      return;
-    }
-    
+  const handleCancel = async () => {
+    setIsProcessing(true);
     try {
-      await eventService.cancelEvent(eventId);
-      loadMyEvents(); // Reload to get updated status
+      await eventService.cancelEvent(selectedEvent.eventId);
+      loadMyEvents();
+      setShowCancelModal(false);
+      setSelectedEvent(null);
     } catch (error) {
       alert('Failed to cancel event: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -75,13 +83,13 @@ const MyEvents = () => {
               </thead>
               <tbody>
                 {events.map(event => (
-                  <tr key={event.eventId}>
+                  <tr key={event.eventId} style={{ cursor: 'pointer' }} onClick={() => navigate(`/events/${event.eventId}`)}>
                     <td style={{ fontWeight: '500' }}>{event.title}</td>
                     <td>{event.type}</td>
                     <td>{formatDate(event.startDate)}</td>
                     <td><Badge bg={getStatusVariant(event.status)} style={{ fontSize: '0.85rem', fontWeight: '600' }}>{event.status}</Badge></td>
                     <td>
-                      <div className="d-flex gap-2">
+                      <div className="d-flex gap-2" onClick={(e) => e.stopPropagation()}>
                         {/* View Details */}
                         <Button 
                           as={Link}
@@ -90,7 +98,7 @@ const MyEvents = () => {
                           variant="outline-primary"
                           title="View details"
                         >
-                          👁️ View
+                          View
                         </Button>
                         
                         {/* Edit button for PENDING and APPROVED events */}
@@ -102,7 +110,7 @@ const MyEvents = () => {
                             variant="outline-info"
                             title={event.status === 'APPROVED' ? 'Edit (will reset to PENDING)' : 'Edit event'}
                           >
-                            ✏️ Edit
+                            Edit
                           </Button>
                         )}
                         
@@ -110,11 +118,11 @@ const MyEvents = () => {
                         {(event.status === 'PENDING' || event.status === 'REJECTED') && (
                           <Button 
                             size="sm" 
-                            variant="outline-danger"
-                            onClick={() => handleDelete(event.eventId)}
+                            variant="danger"
+                            onClick={() => { setSelectedEvent(event); setShowDeleteModal(true); }}
                             title="Delete event"
                           >
-                            🗑️ Delete
+                            Delete
                           </Button>
                         )}
                         
@@ -123,10 +131,10 @@ const MyEvents = () => {
                           <Button 
                             size="sm" 
                             variant="warning"
-                            onClick={() => handleCancel(event.eventId)}
+                            onClick={() => { setSelectedEvent(event); setShowCancelModal(true); }}
                             title="Cancel event"
                           >
-                            🚫 Cancel
+                            Cancel
                           </Button>
                         )}
                       </div>
@@ -140,6 +148,30 @@ const MyEvents = () => {
           )}
         </Card.Body>
       </Card>
+
+      <ConfirmationModal
+        show={showDeleteModal}
+        onHide={() => { setShowDeleteModal(false); setSelectedEvent(null); }}
+        onConfirm={handleDelete}
+        title="Delete Event"
+        message="Are you sure you want to delete this event?"
+        itemName={selectedEvent?.title}
+        confirmText="Delete"
+        confirmVariant="danger"
+        isLoading={isProcessing}
+      />
+
+      <ConfirmationModal
+        show={showCancelModal}
+        onHide={() => { setShowCancelModal(false); setSelectedEvent(null); }}
+        onConfirm={handleCancel}
+        title="Cancel Event"
+        message="Are you sure you want to cancel this event?"
+        itemName={selectedEvent?.title}
+        confirmText="Cancel Event"
+        confirmVariant="warning"
+        isLoading={isProcessing}
+      />
     </Container>
   );
 };

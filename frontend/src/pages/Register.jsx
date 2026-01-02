@@ -286,7 +286,7 @@ const Register = () => {
               disabled={loading}
               style={{ padding: '0.875rem', fontSize: '1.125rem', fontWeight: '600' }}
             >
-              {loading ? '⏳ Creating account...' : '🚀 Register'}
+              {loading ? 'Creating account...' : 'Register'}
             </Button>
           </Form>
 

@@ -22,7 +22,7 @@ class WebSocketService {
 
     const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
     if (!token) {
-      console.error('No authentication token found');
+      console.warn('No authentication token found - WebSocket features disabled');
       return;
     }
 

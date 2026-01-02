@@ -6,6 +6,7 @@ import blogService from '../services/blogService';
 import reportService from '../services/reportService';
 import { truncateText, getStatusVariant } from '../utils/helpers';
 import { BLOG_STATUS, BLOG_CATEGORIES, USER_ROLES } from '../utils/constants';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 
 const Blogs = () => {
   const { user } = useAuth();
@@ -17,9 +18,11 @@ const Blogs = () => {
   });
   const [loading, setLoading] = useState(true);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [reportReason, setReportReason] = useState('');
   const [reportingBlog, setReportingBlog] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const isModerator = user && (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.SUPERVISOR);
@@ -54,16 +57,17 @@ const Blogs = () => {
     }
   };
 
-  const handleAdminDelete = async (blogId) => {
-    if (!window.confirm('⚠️ Admin Action: Are you sure you want to delete this blog?')) {
-      return;
-    }
-    
+  const handleAdminDelete = async () => {
+    setIsProcessing(true);
     try {
-      await blogService.deleteBlog(blogId);
-      setBlogs(blogs.filter(b => b.blogId !== blogId));
+      await blogService.deleteBlog(selectedBlog.blogId);
+      setBlogs(blogs.filter(b => b.blogId !== selectedBlog.blogId));
+      setShowDeleteModal(false);
+      setSelectedBlog(null);
     } catch (error) {
       alert('Failed to delete blog: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -166,7 +170,28 @@ const Blogs = () => {
         <Row className="g-3">
           {filteredBlogs.map(blog => (
             <Col xs={12} sm={6} lg={4} key={blog.blogId}>
-              <Card className="blogs h-100" style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid var(--border-color)', minHeight: '320px' }}>
+              <Card className="blogs h-100" style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid var(--border-color)', minHeight: '320px', position: 'relative', overflow: 'hidden' }}>
+                {blog.reportCount > 0 && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '5px',
+                    right: '5px',
+                    width: '28px',
+                    height: '28px',
+                    backgroundColor: '#dc3545',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '0.875rem',
+                    fontWeight: '700',
+                    zIndex: 10,
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }}>
+                    {blog.reportCount}
+                  </div>
+                )}
                 <Card.Body>
                   <div className="mb-2 d-flex flex-wrap gap-1">
                     <Badge bg="info">{blog.category}</Badge>
@@ -178,47 +203,17 @@ const Blogs = () => {
                   <div className="text-muted small mb-3">
                     ✍️ By: <strong>{blog.author?.name}</strong>
                   </div>
-                  <div className="d-flex gap-2">
+                  <div className="d-flex gap-2 flex-wrap">
                     <Button 
                       as={Link}
                       to={`/blogs/${blog.blogId}`}
                       variant="outline-primary" 
                       size="sm" 
-                      className="flex-grow-1" 
-                      style={{ fontWeight: '600' }}
+                      style={{ fontWeight: '600', width: 'fit-content' }}
                     >
-                      📖 Read More
+                      Read More
                     </Button>
-                    {/* Report button for all logged in users */}
-                    {user && blog.author?.userId !== user.userId && (blog.status === BLOG_STATUS.PENDING || blog.status === BLOG_STATUS.APPROVED) && (
-                      <Button 
-                        size="sm" 
-                        variant="outline-danger"
-                        onClick={() => { setSelectedBlog(blog); setShowReportModal(true); }}
-                        title="Report blog"
-                        style={{ fontWeight: '600' }}
-                      >
-                        🚨
-                      </Button>
-                    )}
-                    {/* Admin can delete any blog */}
-                    {user && user.role === USER_ROLES.ADMIN && (
-                      <Button 
-                        size="sm" 
-                        variant="danger"
-                        onClick={() => handleAdminDelete(blog.blogId)}
-                        title="Delete blog (Admin)"
-                        style={{ fontWeight: '600' }}
-                      >
-                        🗑️
-                      </Button>
-                    )}
                   </div>
-                  {isModerator && blog.reportCount > 0 && (
-                    <Badge bg="warning" className="mt-2" style={{ fontSize: '0.75rem' }}>
-                      🚨 {blog.reportCount} Report{blog.reportCount > 1 ? 's' : ''}
-                    </Badge>
-                  )}
                 </Card.Body>
               </Card>
             </Col>
@@ -227,13 +222,13 @@ const Blogs = () => {
       )}
 
       <Modal show={showReportModal} onHide={() => setShowReportModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Report Blog</Modal.Title>
+        <Modal.Header closeButton style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+          <Modal.Title style={{ color: 'var(--text-primary)' }}>Report Blog</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <p className="text-muted">You are reporting: <strong>{selectedBlog?.title}</strong></p>
+        <Modal.Body style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+          <p className="text-muted">You are reporting: <strong style={{ color: 'var(--text-primary)' }}>{selectedBlog?.title}</strong></p>
           <Form.Group>
-            <Form.Label>Reason for reporting</Form.Label>
+            <Form.Label style={{ color: 'var(--text-primary)' }}>Reason for reporting</Form.Label>
             <Form.Control
               as="textarea"
               rows={4}
@@ -243,7 +238,7 @@ const Blogs = () => {
             />
           </Form.Group>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           <Button variant="secondary" onClick={() => setShowReportModal(false)}>
             Cancel
           </Button>
@@ -256,6 +251,18 @@ const Blogs = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <ConfirmationModal
+        show={showDeleteModal}
+        onHide={() => { setShowDeleteModal(false); setSelectedBlog(null); }}
+        onConfirm={handleAdminDelete}
+        title="Delete Blog"
+        message="Are you sure you want to delete this blog?"
+        itemName={selectedBlog?.title}
+        confirmText="Delete"
+        confirmVariant="danger"
+        isLoading={isProcessing}
+      />
     </Container>
   );
 };

@@ -253,23 +253,28 @@ public class EventService {
                 .findByEventEventIdAndUserUserId(eventId, userId)
                 .orElseThrow(() -> new IllegalStateException("You are not participating in this event"));
 
-        // Apply penalty: -2x the points awarded
-        int penalty = participant.getPointsAwarded() * 2;
+        // Apply penalty: -2x the points awarded (handle null case)
+        int pointsAwarded = participant.getPointsAwarded() != null ? participant.getPointsAwarded() : 0;
+        int penalty = pointsAwarded * 2;
         participantRepository.delete(participant);
 
-        // Deduct points through gamification service
-        gamificationService.deductPoints(
-                user,
-                penalty,
-                "EVENT_LEAVE",
-                eventId,
-                "Left event '" + event.getTitle() + "' (penalty applied)"
-        );
+        // Deduct points through gamification service (only if penalty > 0)
+        if (penalty > 0) {
+            gamificationService.deductPoints(
+                    user,
+                    penalty,
+                    "EVENT_LEAVE",
+                    eventId,
+                    "Left event '" + event.getTitle() + "' (penalty applied)"
+            );
+        }
 
         // Notify user
         Notification notification = new Notification();
         notification.setUser(user);
-        notification.setMessage("You left event '" + event.getTitle() + "'. Penalty: -" + penalty + " points");
+        notification.setMessage(penalty > 0 
+                ? "You left event '" + event.getTitle() + "'. Penalty: -" + penalty + " points"
+                : "You left event '" + event.getTitle() + "'");
         notification.setType(NotificationType.POINTS_UPDATE);
         notification.setIsRead(false);
         notificationRepository.save(notification);

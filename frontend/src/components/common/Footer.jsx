@@ -9,51 +9,47 @@ const Footer = () => {
       <Container>
         <Row className="footer-content">
           {/* Brand Section */}
-          <Col lg={4} md={6} className="mb-4 mb-lg-0">
+          <Col lg={4} md={12} className="mb-4">
             <div className="footer-brand">
               <h5 className="footer-logo">🎓 UniHub</h5>
               <p className="footer-description">
                 Empowering university communities through engagement, collaboration, and growth.
-                Connect with peers and achieve excellence together.
               </p>
             </div>
           </Col>
 
           {/* Quick Links */}
-          <Col lg={2} md={6} sm={6} className="mb-4 mb-lg-0">
+          <Col lg={2} md={4} sm={6} className="mb-4">
             <h6 className="footer-heading">Quick Links</h6>
             <ul className="footer-links">
-              <li><Link to="/">About</Link></li>
-              <li><Link to="/events">Events</Link></li>
-              <li><Link to="/blogs">Blogs</Link></li>
-              <li><Link to="/leaderboard">Leaderboard</Link></li>
-            </ul>
-          </Col>
-
-          {/* Resources */}
-          <Col lg={2} md={6} sm={6} className="mb-4 mb-lg-0">
-            <h6 className="footer-heading">Resources</h6>
-            <ul className="footer-links">
-              <li><Link to="/">Features</Link></li>
-              <li><Link to="/">FAQ</Link></li>
-              <li><Link to="/">Contact</Link></li>
-              <li><Link to="/">Support</Link></li>
+              <li><Link to="/about">About</Link></li>
+              <li><Link to="/features">Features</Link></li>
+              <li><Link to="/faq">FAQ</Link></li>
             </ul>
           </Col>
 
           {/* Legal */}
-          <Col lg={2} md={6} sm={6} className="mb-4 mb-lg-0">
+          <Col lg={2} md={4} sm={6} className="mb-4">
             <h6 className="footer-heading">Legal</h6>
             <ul className="footer-links">
-              <li><Link to="/">Privacy Policy</Link></li>
-              <li><Link to="/">Terms of Service</Link></li>
-              <li><Link to="/">Cookie Policy</Link></li>
-              <li><Link to="/">Guidelines</Link></li>
+              <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+              <li><Link to="/terms-of-service">Terms of Service</Link></li>
+              <li><Link to="/cookie-policy">Cookie Policy</Link></li>
+              <li><Link to="/guidelines">Guidelines</Link></li>
+            </ul>
+          </Col>
+
+          {/* Support */}
+          <Col lg={2} md={4} sm={6} className="mb-4">
+            <h6 className="footer-heading">Support</h6>
+            <ul className="footer-links">
+              <li><Link to="/contact">Contact</Link></li>
+              <li><Link to="/support">Support</Link></li>
             </ul>
           </Col>
 
           {/* Social */}
-          <Col lg={2} md={6} sm={6}>
+          <Col lg={2} md={12} className="mb-4">
             <h6 className="footer-heading">Follow Us</h6>
             <div className="footer-social">
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon" title="Facebook">

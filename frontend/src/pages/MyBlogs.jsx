@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Container, Card, Table, Badge, Button } from 'react-bootstrap';
 import blogService from '../services/blogService';
 import { getStatusVariant } from '../utils/helpers';
 import { useAuth } from '../context/AuthContext';
 import { USER_ROLES } from '../utils/constants';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 
 const MyBlogs = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedBlog, setSelectedBlog] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     loadMyBlogs();
@@ -27,16 +32,17 @@ const MyBlogs = () => {
     }
   };
 
-  const handleDelete = async (blogId) => {
-    if (!window.confirm('Are you sure you want to delete this blog?')) {
-      return;
-    }
-    
+  const handleDelete = async () => {
+    setIsProcessing(true);
     try {
-      await blogService.deleteBlog(blogId);
-      setBlogs(blogs.filter(b => b.blogId !== blogId));
+      await blogService.deleteBlog(selectedBlog.blogId);
+      setBlogs(blogs.filter(b => b.blogId !== selectedBlog.blogId));
+      setShowDeleteModal(false);
+      setSelectedBlog(null);
     } catch (error) {
       alert('Failed to delete blog: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -54,12 +60,23 @@ const MyBlogs = () => {
               </thead>
               <tbody>
                 {blogs.map(blog => (
-                  <tr key={blog.blogId}>
+                  <tr key={blog.blogId} style={{ cursor: 'pointer' }} onClick={() => navigate(`/blogs/${blog.blogId}`)}>
                     <td style={{ fontWeight: '500' }}>{blog.title}</td>
                     <td><Badge bg="info" style={{ fontSize: '0.85rem', fontWeight: '600' }}>{blog.category}</Badge></td>
                     <td><Badge bg={getStatusVariant(blog.status)} style={{ fontSize: '0.85rem', fontWeight: '600' }}>{blog.status}</Badge></td>
                     <td>
-                      <div className="d-flex gap-2">
+                      <div className="d-flex gap-2" onClick={(e) => e.stopPropagation()}>
+                        {/* View Details */}
+                        <Button 
+                          as={Link}
+                          to={`/blogs/${blog.blogId}`}
+                          size="sm" 
+                          variant="outline-primary"
+                          title="View details"
+                        >
+                          View
+                        </Button>
+                        
                         {/* Edit button for PENDING and APPROVED blogs */}
                         {(blog.status === 'PENDING' || blog.status === 'APPROVED') && (
                           <Button 
@@ -69,7 +86,7 @@ const MyBlogs = () => {
                             variant="outline-info"
                             title={blog.status === 'APPROVED' ? 'Edit (will reset to PENDING)' : 'Edit blog'}
                           >
-                            ✏️ Edit
+                            Edit
                           </Button>
                         )}
                         
@@ -77,11 +94,11 @@ const MyBlogs = () => {
                         {(blog.status === 'PENDING' || blog.status === 'REJECTED') && (
                           <Button 
                             size="sm" 
-                            variant="outline-danger"
-                            onClick={() => handleDelete(blog.blogId)}
+                            variant="danger"
+                            onClick={() => { setSelectedBlog(blog); setShowDeleteModal(true); }}
                             title="Delete blog"
                           >
-                            🗑️ Delete
+                            Delete
                           </Button>
                         )}
                         
@@ -90,10 +107,10 @@ const MyBlogs = () => {
                           <Button 
                             size="sm" 
                             variant="danger"
-                            onClick={() => handleDelete(blog.blogId)}
+                            onClick={() => { setSelectedBlog(blog); setShowDeleteModal(true); }}
                             title="Delete blog (Admin)"
                           >
-                            🗑️ Delete
+                            Delete
                           </Button>
                         )}
                       </div>
@@ -107,6 +124,18 @@ const MyBlogs = () => {
           )}
         </Card.Body>
       </Card>
+
+      <ConfirmationModal
+        show={showDeleteModal}
+        onHide={() => { setShowDeleteModal(false); setSelectedBlog(null); }}
+        onConfirm={handleDelete}
+        title="Delete Blog"
+        message="Are you sure you want to delete this blog?"
+        itemName={selectedBlog?.title}
+        confirmText="Delete"
+        confirmVariant="danger"
+        isLoading={isProcessing}
+      />
     </Container>
   );
 };

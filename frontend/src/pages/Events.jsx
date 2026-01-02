@@ -6,6 +6,7 @@ import eventService from '../services/eventService';
 import { formatDate, truncateText, getStatusVariant } from '../utils/helpers';
 import { EVENT_STATUS, USER_ROLES } from '../utils/constants';
 import adminService from '../services/adminService';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 
 const Events = () => {
   const { user } = useAuth();
@@ -21,6 +22,10 @@ const Events = () => {
     timeFilter: 'ALL' // ALL, ACTIVE, FUTURE, COMPLETED
   });
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const loadUniversities = async () => {
     try {
@@ -126,29 +131,31 @@ const Events = () => {
     loadEvents();
   }, [loadEvents]);
 
-  const handleAdminDelete = async (eventId) => {
-    if (!window.confirm('⚠️ Admin Action: Are you sure you want to delete this event?')) {
-      return;
-    }
-    
+  const handleAdminDelete = async () => {
+    setIsProcessing(true);
     try {
-      await eventService.deleteEvent(eventId);
-      setEvents(events.filter(e => e.eventId !== eventId));
+      await eventService.deleteEvent(selectedEvent.eventId);
+      setEvents(events.filter(e => e.eventId !== selectedEvent.eventId));
+      setShowDeleteModal(false);
+      setSelectedEvent(null);
     } catch (error) {
       alert('Failed to delete event: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleAdminCancel = async (eventId) => {
-    if (!window.confirm('⚠️ Admin Action: Are you sure you want to cancel this event?')) {
-      return;
-    }
-    
+  const handleAdminCancel = async () => {
+    setIsProcessing(true);
     try {
-      await eventService.cancelEvent(eventId);
-      loadEvents(); // Reload to get updated status
+      await eventService.cancelEvent(selectedEvent.eventId);
+      loadEvents();
+      setShowCancelModal(false);
+      setSelectedEvent(null);
     } catch (error) {
       alert('Failed to cancel event: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -263,7 +270,28 @@ const Events = () => {
         <Row className="g-3">
           {filteredEvents.map(event => (
             <Col xs={12} sm={6} lg={4} key={event.eventId}>
-              <Card className="event h-100" style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid var(--border-color)' }}>
+              <Card className="event h-100" style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid var(--border-color)', position: 'relative', overflow: 'hidden' }}>
+                {event.reportCount > 0 && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '5px',
+                    right: '5px',
+                    width: '28px',
+                    height: '28px',
+                    backgroundColor: '#dc3545',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '0.875rem',
+                    fontWeight: '700',
+                    zIndex: 10,
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }}>
+                    {event.reportCount}
+                  </div>
+                )}
                 <Card.Body>
                   <div className="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-1">
                     <Badge bg={getStatusVariant(event.status)} style={{ fontSize: '0.85rem', fontWeight: '600' }}>
@@ -280,7 +308,10 @@ const Events = () => {
                   <Card.Text style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>{truncateText(event.description, 100)}</Card.Text>
                   <div className="mb-3">
                     <div className="text-muted small">
-                      📍 <strong>{event.location}</strong>
+                      🏫 <strong>{event.university?.name || 'N/A'}</strong>
+                    </div>
+                    <div className="text-muted small">
+                      📍 {event.location}
                     </div>
                     <div className="text-muted small">
                       🕒 {formatDate(event.startDate)}
@@ -289,50 +320,16 @@ const Events = () => {
                       👤 By: <strong>{event.creator?.name}</strong>
                     </div>
                   </div>
-                  <div className="d-flex gap-2 flex-column">
+                  <div className="d-flex gap-2 flex-wrap">
                     <Button 
                       as={Link} 
                       to={`/events/${event.eventId}`} 
                       variant="outline-primary" 
                       size="sm"
-                      style={{ fontWeight: '600' }}
+                      style={{ fontWeight: '600', width: 'fit-content' }}
                     >
-                      📖 View Details
+                      View Details
                     </Button>
-                    {user && (user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.SUPERVISOR) && event.reportCount > 0 && (
-                      <Badge bg="warning" className="text-center" style={{ fontSize: '0.75rem', padding: '0.25rem' }}>
-                        🚨 {event.reportCount} Report{event.reportCount > 1 ? 's' : ''}
-                      </Badge>
-                    )}
-                    {/* Admin can delete or cancel any event */}
-                    <div className="d-flex gap-2">
-                      {user && user.role === USER_ROLES.ADMIN && (
-                        <>
-                          {event.status === 'APPROVED' && (
-                            <Button 
-                              size="sm" 
-                              variant="warning"
-                              onClick={() => handleAdminCancel(event.eventId)}
-                              title="Cancel event (Admin)"
-                              style={{ fontWeight: '600' }}
-                            >
-                              🚫
-                            </Button>
-                          )}
-                          {(event.status === 'PENDING' || event.status === 'REJECTED') && (
-                            <Button 
-                              size="sm" 
-                              variant="danger"
-                              onClick={() => handleAdminDelete(event.eventId)}
-                              title="Delete event (Admin)"
-                              style={{ fontWeight: '600' }}
-                            >
-                              🗑️
-                            </Button>
-                          )}
-                        </>
-                      )}
-                    </div>
                   </div>
                 </Card.Body>
               </Card>
@@ -346,6 +343,30 @@ const Events = () => {
           </Card.Body>
         </Card>
       )}
+
+      <ConfirmationModal
+        show={showDeleteModal}
+        onHide={() => { setShowDeleteModal(false); setSelectedEvent(null); }}
+        onConfirm={handleAdminDelete}
+        title="Delete Event"
+        message="Are you sure you want to delete this event?"
+        itemName={selectedEvent?.title}
+        confirmText="Delete"
+        confirmVariant="danger"
+        isLoading={isProcessing}
+      />
+
+      <ConfirmationModal
+        show={showCancelModal}
+        onHide={() => { setShowCancelModal(false); setSelectedEvent(null); }}
+        onConfirm={handleAdminCancel}
+        title="Cancel Event"
+        message="Are you sure you want to cancel this event?"
+        itemName={selectedEvent?.title}
+        confirmText="Cancel Event"
+        confirmVariant="warning"
+        isLoading={isProcessing}
+      />
     </Container>
   );
 };

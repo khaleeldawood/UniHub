@@ -63,8 +63,8 @@ const Badges = () => {
             {user ? 'Earn points to unlock achievement badges' : 'Register to start earning badges!'}
           </p>
           {user && (
-            <div className="alert alert-info">
-              <strong>Your Progress:</strong> {formatPoints(currentPoints)} points earned
+            <div className="alert alert-info" style={{ backgroundColor: 'rgba(6, 182, 212, 0.15)', borderColor: 'rgba(6, 182, 212, 0.3)' }}>
+              <strong style={{ color: 'var(--text-primary)' }}>Your Progress:</strong> <span style={{ color: 'var(--text-primary)' }}>{formatPoints(currentPoints)} points earned</span>
             </div>
           )}
         </Col>

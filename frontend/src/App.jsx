@@ -37,7 +37,8 @@ const MyBlogs = lazy(() => import('./pages/MyBlogs'));
 const EventApprovals = lazy(() => import('./pages/EventApprovals'));
 const BlogApprovals = lazy(() => import('./pages/BlogApprovals'));
 const Reports = lazy(() => import('./pages/Reports'));
-const EventRequests = lazy(() => import('./pages/EventRequests'));
+const EventParticipationRequests = lazy(() => import('./pages/EventParticipationRequests'));
+const MyEventRequests = lazy(() => import('./pages/MyEventRequests'));
 const AdminUsers = lazy(() => import('./pages/AdminUsers'));
 const AdminUniversities = lazy(() => import('./pages/AdminUniversities'));
 const AdminAnalytics = lazy(() => import('./pages/AdminAnalytics'));
@@ -46,6 +47,15 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const OAuth2Redirect = lazy(() => import('./pages/OAuth2Redirect'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const About = lazy(() => import('./pages/About'));
+const Features = lazy(() => import('./pages/Features'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const CookiePolicy = lazy(() => import('./pages/CookiePolicy'));
+const Guidelines = lazy(() => import('./pages/Guidelines'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Support = lazy(() => import('./pages/Support'));
 
 const LoadingFallback = () => (
   <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
@@ -62,9 +72,16 @@ function App() {
         <AuthProvider>
           <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <div className="d-flex flex-column min-vh-100">
+              {/* Global animated background */}
+              <div className="spirit-container">
+                <div className="spirit"></div>
+                <div className="spirit"></div>
+                <div className="spirit"></div>
+                <div className="spirit"></div>
+              </div>
               <Navbar />
               <ScrollToTop />
-              <main className="flex-grow-1">
+              <main className="flex-grow-1" style={{ minHeight: 'calc(100vh - 200px)' }}>
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
                   {/* Public Routes */}
@@ -81,6 +98,15 @@ function App() {
                   <Route path="/blogs/:id" element={<BlogDetails />} />
                   <Route path="/leaderboard" element={<Leaderboard />} />
                   <Route path="/badges" element={<Badges />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/features" element={<Features />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route path="/cookie-policy" element={<CookiePolicy />} />
+                  <Route path="/guidelines" element={<Guidelines />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/support" element={<Support />} />
 
                   {/* Protected Routes - All Authenticated Users */}
                   <Route
@@ -163,16 +189,24 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
-
-                  {/* Supervisor & Admin Routes */}
                   <Route
-                    path="/event-requests"
+                    path="/participation-requests"
                     element={
-                      <ProtectedRoute allowedRoles={[USER_ROLES.SUPERVISOR, USER_ROLES.ADMIN]}>
-                        <EventRequests />
+                      <ProtectedRoute>
+                        <EventParticipationRequests />
                       </ProtectedRoute>
                     }
                   />
+                  <Route
+                    path="/my-event-requests"
+                    element={
+                      <ProtectedRoute>
+                        <MyEventRequests />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Supervisor & Admin Routes */}
                   <Route
                     path="/events/approvals"
                     element={

@@ -9,6 +9,7 @@ import gamificationService from '../services/gamificationService';
 import notificationService from '../services/notificationService';
 import userService from '../services/userService';
 import BadgeModal from '../components/common/BadgeModal';
+import ConfettiStyles, { triggerConfetti } from '../components/common/Confetti';
 import { formatDate, formatPoints, getBadgeColor, getTimeAgo } from '../utils/helpers';
 import { USER_ROLES } from '../utils/constants';
 
@@ -21,6 +22,13 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState({ events: 0, blogs: 0 });
   const [loading, setLoading] = useState(true);
+
+  // Trigger confetti when badge is earned
+  useEffect(() => {
+    if (badgeEarned) {
+      triggerConfetti();
+    }
+  }, [badgeEarned]);
 
   useEffect(() => {
     loadDashboardData();
@@ -130,6 +138,7 @@ const Dashboard = () => {
 
   return (
     <Container className="py-4 dashboard-page" style={{ marginTop: '100px' }}>
+      <ConfettiStyles />
       {/* Badge Earned Modal */}
       <BadgeModal
         badge={badgeEarned}
@@ -225,7 +234,7 @@ const Dashboard = () => {
                     variant="warning" 
                     style={{ fontWeight: '600', padding: '0.625rem 1.25rem' }}
                   >
-                    📋 Review Events
+                    Review Events
                   </Button>
                 </Card.Body>
               </Card>
@@ -247,7 +256,7 @@ const Dashboard = () => {
                     variant="warning"
                     style={{ fontWeight: '600', padding: '0.625rem 1.25rem' }}
                   >
-                    📋 Review Blogs
+                    Review Blogs
                   </Button>
                 </Card.Body>
               </Card>

@@ -62,6 +62,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/events/*").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/events/*").authenticated()
 
+                // Event Participation Requests
+                .requestMatchers("/api/event-participation-requests/**").authenticated()
+
                 // Admin endpoints (except universities list)
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 

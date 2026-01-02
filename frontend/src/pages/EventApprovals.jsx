@@ -60,7 +60,7 @@ const EventApprovals = () => {
       <Alert variant="warning" style={{ fontWeight: '500', border: '2px solid #ffc107', boxShadow: '0 2px 8px rgba(255, 193, 7, 0.2)' }}>
         <strong>👨‍🏫 {user.role === USER_ROLES.ADMIN ? 'Admin' : 'Supervisor'} View:</strong> Review and approve/reject pending events from your university.
       </Alert>
-      <h2 className="mb-4" style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>⏳ Event Approvals</h2>
+      <h2 className="mb-4" style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>Event Approvals</h2>
       <Card style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', border: 'none', borderRadius: '1rem' }}>
         <Card.Body>
           {loading ? (
@@ -95,16 +95,16 @@ const EventApprovals = () => {
                           disabled={processingId === event.eventId}
                           style={{ fontWeight: '600', minWidth: '90px' }}
                         >
-                          {processingId === event.eventId ? '⏳ Processing...' : '✅ Approve'}
+                          {processingId === event.eventId ? 'Processing...' : 'Approve'}
                         </Button>
                         <Button 
                           size="sm" 
-                          variant="danger" 
+                          variant="secondary" 
                           onClick={() => handleReject(event.eventId)}
                           disabled={processingId === event.eventId}
                           style={{ fontWeight: '600', minWidth: '90px' }}
                         >
-                          {processingId === event.eventId ? '⏳ Processing...' : '❌ Reject'}
+                          {processingId === event.eventId ? 'Processing...' : 'Reject'}
                         </Button>
                       </div>
                     </td>

@@ -44,7 +44,7 @@ const AdminAnalytics = () => {
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
-              <h3>{analytics?.totalUsers || 0}</h3>
+              <h3 id="analytics-users-count">{analytics?.totalUsers || 0}</h3>
               <p className="text-muted mb-0">Total Users</p>
             </Card.Body>
           </Card>
@@ -52,7 +52,7 @@ const AdminAnalytics = () => {
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
-              <h3>{analytics?.totalEvents || 0}</h3>
+              <h3 id="analytics-events-count">{analytics?.totalEvents || 0}</h3>
               <p className="text-muted mb-0">Total Events</p>
             </Card.Body>
           </Card>
@@ -60,7 +60,7 @@ const AdminAnalytics = () => {
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
-              <h3>{analytics?.totalBlogs || 0}</h3>
+              <h3 id="analytics-blogs-count">{analytics?.totalBlogs || 0}</h3>
               <p className="text-muted mb-0">Total Blogs</p>
             </Card.Body>
           </Card>
@@ -68,7 +68,7 @@ const AdminAnalytics = () => {
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
-              <h3>{analytics?.totalUniversities || 0}</h3>
+              <h3 id="analytics-universities-count">{analytics?.totalUniversities || 0}</h3>
               <p className="text-muted mb-0">Universities</p>
             </Card.Body>
           </Card>
