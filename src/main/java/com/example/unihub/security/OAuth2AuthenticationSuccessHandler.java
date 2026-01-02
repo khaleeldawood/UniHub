@@ -50,21 +50,14 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             
             log.info("JWT token generated for user: {}", user.getEmail());
             
-            // Set token as httpOnly cookie
-            jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("auth_token", token);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(true);
-            cookie.setPath("/");
-            cookie.setMaxAge(86400); // 24 hours
-            response.addCookie(cookie);
-            
-            String targetUrl = frontendUrl + "/#/oauth2/redirect";
+            // Send token in URL for cross-domain OAuth2
+            String targetUrl = frontendUrl + "/#/oauth2/redirect?token=" + token;
             
             log.info("Redirecting to: {}", targetUrl);
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         } catch (Exception e) {
             log.error("OAuth2 authentication failed: {}", e.getMessage(), e);
-            String errorUrl = frontendUrl + "/#/login?error=oauth2_error&message=" + e.getMessage();
+            String errorUrl = frontendUrl + "/#/login?error=oauth2_error";
             
             getRedirectStrategy().sendRedirect(request, response, errorUrl);
         }

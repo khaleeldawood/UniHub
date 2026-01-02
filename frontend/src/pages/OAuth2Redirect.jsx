@@ -11,6 +11,7 @@ const OAuth2Redirect = () => {
 
   useEffect(() => {
     const handleOAuth2Redirect = async () => {
+      const token = searchParams.get('token');
       const error = searchParams.get('error');
 
       if (error) {
@@ -18,13 +19,22 @@ const OAuth2Redirect = () => {
         return;
       }
 
+      if (!token) {
+        navigate('/login', { replace: true });
+        return;
+      }
+
       try {
-        // Token is in httpOnly cookie, just fetch user data
+        // Store token in localStorage
+        localStorage.setItem('token', token);
+        
+        // Fetch user data
         const userData = await authService.checkSession();
         setUser(userData);
         navigate('/dashboard', { replace: true });
       } catch (err) {
         console.error('OAuth2 redirect error:', err);
+        localStorage.removeItem('token');
         navigate('/login?error=oauth2_failed', { replace: true });
       }
     };
